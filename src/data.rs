@@ -1,3 +1,4 @@
+use crate::i18n::{tr, trf};
 use anyhow::{bail, Result};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use chrono::{Datelike, Duration, NaiveDate, Utc};
@@ -17,22 +18,40 @@ pub enum Section {
 impl Section {
     pub fn title(self) -> &'static str {
         match self {
-            Self::Grades => "Oceny",
-            Self::Attendance => "Frekwencja",
-            Self::Messages => "Wiadomości",
-            Self::Notices => "Ogłoszenia",
-            Self::Timetable => "Plan lekcji",
-            Self::Account => "Twoje konto",
+            Self::Grades => tr!("Oceny", "Grades"),
+            Self::Attendance => tr!("Frekwencja", "Attendance"),
+            Self::Messages => tr!("Wiadomości", "Messages"),
+            Self::Notices => tr!("Ogłoszenia", "Notices"),
+            Self::Timetable => tr!("Plan lekcji", "Timetable"),
+            Self::Account => tr!("Twoje konto", "Profile"),
         }
     }
     pub fn subtitle(self) -> &'static str {
         match self {
-            Self::Grades => "Oceny z przedmiotów i podsumowanie średnich",
-            Self::Attendance => "Obecności, nieobecności i historia wpisów",
-            Self::Messages => "Skrzynka odbiorcza i treść wiadomości",
-            Self::Notices => "Informacje i komunikaty od szkoły",
-            Self::Timetable => "Twój tydzień i zmiany w planie",
-            Self::Account => "Logowanie i ustawienia wyglądu",
+            Self::Grades => tr!(
+                "Oceny z przedmiotów i podsumowanie średnich",
+                "Subject grades and average summaries"
+            ),
+            Self::Attendance => tr!(
+                "Obecności, nieobecności i historia wpisów",
+                "Attendance, absences and entry history"
+            ),
+            Self::Messages => tr!(
+                "Skrzynka odbiorcza i treść wiadomości",
+                "Inbox and message content"
+            ),
+            Self::Notices => tr!(
+                "Informacje i komunikaty od szkoły",
+                "Updates and announcements from your school"
+            ),
+            Self::Timetable => tr!(
+                "Twój tydzień i zmiany w planie",
+                "Your week and timetable changes"
+            ),
+            Self::Account => tr!(
+                "Logowanie i ustawienia wyglądu",
+                "Sign-in, language and appearance settings"
+            ),
         }
     }
 }
@@ -199,10 +218,12 @@ pub fn flag(value: &Value) -> bool {
         .unwrap_or_else(|| value.as_u64() == Some(1) || value.as_str() == Some("1"))
 }
 pub fn records<'a>(value: &'a Value, key: &str) -> Result<&'a Vec<Value>> {
-    value
-        .get(key)
-        .and_then(Value::as_array)
-        .ok_or_else(|| anyhow::anyhow!("Librus zwrócił nieoczekiwany format danych ({key})."))
+    value.get(key).and_then(Value::as_array).ok_or_else(|| {
+        anyhow::anyhow!(trf!(
+            "Librus zwrócił nieoczekiwany format danych ({key}).",
+            "Librus returned an unexpected data format ({key})."
+        ))
+    })
 }
 pub fn names(values: &[Value]) -> HashMap<String, String> {
     values
@@ -333,7 +354,7 @@ pub fn message(value: &Value, full: bool) -> Message {
                             .into_iter()
                             .map(|key| text(a, key))
                             .find(|s| !s.is_empty())
-                            .unwrap_or_else(|| "Załącznik".into())
+                            .unwrap_or_else(|| tr!("Załącznik", "Attachment").into())
                     })
                     .collect()
             })
@@ -348,15 +369,21 @@ pub fn timetable(
     teachers: &HashMap<String, String>,
     rooms: &HashMap<String, String>,
 ) -> Result<Vec<Lesson>> {
-    let root = value
-        .get("Timetable")
-        .ok_or_else(|| anyhow::anyhow!("Brak planu w odpowiedzi Librusa."))?;
+    let root = value.get("Timetable").ok_or_else(|| {
+        anyhow::anyhow!(tr!(
+            "Brak planu w odpowiedzi Librusa.",
+            "No timetable was included in the Librus response."
+        ))
+    })?;
     let root = root.get("Timetable").unwrap_or(root);
     if root.is_null() || root.as_array().is_some_and(Vec::is_empty) {
         return Ok(vec![]);
     }
     let Some(days) = root.as_object() else {
-        bail!("Nieoczekiwany format planu lekcji.");
+        bail!(tr!(
+            "Nieoczekiwany format planu lekcji.",
+            "Unexpected timetable format."
+        ));
     };
     let mut output = vec![];
     fn visit(
@@ -383,9 +410,9 @@ pub fn timetable(
                 } else {
                     no
                 },
-                subject: resolve(&value["Subject"], subjects, "Przedmiot"),
-                teacher: resolve(&value["Teacher"], teachers, "Nauczyciel"),
-                room: resolve(&value["Classroom"], rooms, "Sala"),
+                subject: resolve(&value["Subject"], subjects, tr!("Przedmiot", "Subject")),
+                teacher: resolve(&value["Teacher"], teachers, tr!("Nauczyciel", "Teacher")),
+                room: resolve(&value["Classroom"], rooms, tr!("Sala", "Room")),
                 from: text(value, "HourFrom"),
                 to: text(value, "HourTo"),
                 canceled: flag(&value["IsCanceled"]),

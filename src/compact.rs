@@ -1,3 +1,4 @@
+use crate::i18n::{tr, trf};
 use crate::{
     data::{self, Grade, Lesson},
     theme::{Accent, MUTED, RED, TEXT},
@@ -60,8 +61,9 @@ pub fn grades(
         {
             state.grades_page -= 1;
         }
-        ui.small(format!(
+        ui.small(trf!(
             "Strona {} / {} · szczegóły po kliknięciu",
+            "Page {} / {} · click for details",
             state.grades_page + 1,
             pages
         ));
@@ -99,8 +101,9 @@ pub fn grades(
             Stroke::new(1_f32, Color32::from_rgb(56, 69, 88)),
         );
         let response = ui.interact(rect, ui.id().with(("subject", subject)), Sense::click());
-        response.clone().on_hover_text(format!(
+        response.clone().on_hover_text(trf!(
             "{subject}\n{} ocen · kliknij, aby otworzyć szczegóły",
+            "{subject}\n{} grades · click to open details",
             values.len()
         ));
         if response.clicked() {
@@ -165,8 +168,9 @@ pub fn grades(
                 color,
             );
             ui.interact(badge, ui.id().with((subject, i)), Sense::hover())
-                .on_hover_text(format!(
+                .on_hover_text(trf!(
                     "{}\n{} · {}\nWaga: {}",
+                    "{}\n{} · {}\nWeight: {}",
                     g.category,
                     g.date,
                     g.teacher,
@@ -204,8 +208,9 @@ pub fn grades(
             .vscroll(true)
             .show(ui.ctx(), |ui| {
                 if let Some(values) = grouped.get(subject.as_str()) {
-                    ui.label(format!(
+                    ui.label(trf!(
                         "Średnia arytmetyczna / ważona: {}",
+                        "Arithmetic / weighted average: {}",
                         views::average_pair(values.iter().copied(), state.semester)
                     ));
                     for g in values {
@@ -213,8 +218,9 @@ pub fn grades(
                         ui.horizontal_wrapped(|ui| {
                             ui.colored_label(views::grade_color(&g.value, accent), &g.value);
                             ui.label(&g.category);
-                            ui.small(format!(
+                            ui.small(trf!(
                                 "{} · {} · semestr {} · waga {}",
+                                "{} · {} · semester {} · weight {}",
                                 g.date,
                                 g.teacher,
                                 g.semester,
@@ -292,16 +298,24 @@ pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: Naiv
         ui.painter()
             .rect(rect, 7., fill, Stroke::new(1.5_f32, border));
         let names = if width < 150. {
-            ["PON.", "WT.", "ŚR.", "CZW.", "PT.", "SOB.", "ND."]
+            [
+                tr!("PON.", "MON."),
+                tr!("WT.", "TUE."),
+                tr!("ŚR.", "WED."),
+                tr!("CZW.", "THU."),
+                tr!("PT.", "FRI."),
+                tr!("SOB.", "SAT."),
+                tr!("ND.", "SUN."),
+            ]
         } else {
             [
-                "PONIEDZIAŁEK",
-                "WTOREK",
-                "ŚRODA",
-                "CZWARTEK",
-                "PIĄTEK",
-                "SOBOTA",
-                "NIEDZIELA",
+                tr!("PONIEDZIAŁEK", "MONDAY"),
+                tr!("WTOREK", "TUESDAY"),
+                tr!("ŚRODA", "WEDNESDAY"),
+                tr!("CZWARTEK", "THURSDAY"),
+                tr!("PIĄTEK", "FRIDAY"),
+                tr!("SOBOTA", "SATURDAY"),
+                tr!("NIEDZIELA", "SUNDAY"),
             ]
         };
         text(ui, line(rect, 9., 18.), names[day as usize], 12., border);
@@ -313,7 +327,13 @@ pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: Naiv
             if free { RED } else { TEXT },
         );
         if free {
-            text(ui, line(rect, 56., 16.), "Dzień wolny", 11., RED);
+            text(
+                ui,
+                line(rect, 56., 16.),
+                tr!("Dzień wolny", "Day off"),
+                11.,
+                RED,
+            );
         }
         for (row, key) in slots.iter().enumerate() {
             let parallel: Vec<_> = lessons.iter().filter(|l| slot(l) == *key).collect();
@@ -328,12 +348,16 @@ pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: Naiv
                     Vec2::new(cell_width - 3., (row_height - 5.).max(1.)),
                 );
                 let (fill, color, status) = if l.canceled {
-                    (Color32::from_rgb(115, 36, 48), RED, "ODWOŁANA")
+                    (
+                        Color32::from_rgb(115, 36, 48),
+                        RED,
+                        tr!("ODWOŁANA", "CANCELED"),
+                    )
                 } else if l.substitution {
                     (
                         Color32::from_rgb(133, 70, 25),
                         Color32::from_rgb(255, 196, 119),
-                        "ZASTĘPSTWO",
+                        tr!("ZASTĘPSTWO", "SUBSTITUTION"),
                     )
                 } else {
                     (Color32::from_rgb(32, 43, 59), accent.color(), "")
@@ -365,7 +389,7 @@ pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: Naiv
                         &row_ui,
                         line(card, 42., 16.),
                         &if status.is_empty() {
-                            format!("Sala {}", l.room)
+                            trf!("Sala {}", "Room {}", l.room)
                         } else {
                             status.to_string()
                         },
@@ -381,9 +405,17 @@ pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: Naiv
                     ui.id().with(("lesson", day, row, group)),
                     Sense::hover(),
                 )
-                .on_hover_text(format!(
+                .on_hover_text(trf!(
                     "{} · {}–{}\n{}\n{} · sala {}\n{}\n{}",
-                    l.number, l.from, l.to, l.subject, l.teacher, l.room, status, l.note
+                    "{} · {}–{}\n{}\n{} · room {}\n{}\n{}",
+                    l.number,
+                    l.from,
+                    l.to,
+                    l.subject,
+                    l.teacher,
+                    l.room,
+                    status,
+                    l.note
                 ));
             }
         }

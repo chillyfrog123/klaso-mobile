@@ -1,3 +1,4 @@
+use crate::i18n::tr;
 use eframe::egui::{self, Color32, Stroke, Vec2};
 use serde::{Deserialize, Serialize};
 
@@ -18,10 +19,10 @@ impl Accent {
     pub const ALL: [Self; 4] = [Self::Cobalt, Self::Emerald, Self::Violet, Self::Amber];
     pub fn name(self) -> &'static str {
         match self {
-            Self::Cobalt => "Kobalt",
-            Self::Emerald => "Szmaragd",
-            Self::Violet => "Fiolet",
-            Self::Amber => "Bursztyn",
+            Self::Cobalt => tr!("Kobalt", "Cobalt"),
+            Self::Emerald => tr!("Szmaragd", "Emerald"),
+            Self::Violet => tr!("Fiolet", "Violet"),
+            Self::Amber => tr!("Bursztyn", "Amber"),
         }
     }
     pub fn color(self) -> Color32 {

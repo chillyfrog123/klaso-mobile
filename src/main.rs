@@ -1,9 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use crate::i18n::{tr, trf, Language};
 mod api;
 mod cache;
 mod compact;
 mod data;
 mod demo;
+mod i18n;
 mod shine;
 mod theme;
 mod vault;
@@ -54,6 +56,7 @@ struct App {
     session: Option<Arc<api::Session>>,
     section: Section,
     accent: Accent,
+    language: Language,
     status: String,
     auth_busy: bool,
     epoch: u64,
@@ -73,6 +76,8 @@ struct App {
 }
 impl App {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        let language = Language::load();
+        language.activate();
         theme::fonts(&cc.egui_ctx);
         let accent = Accent::load();
         theme::apply(&cc.egui_ctx, accent);
@@ -85,7 +90,12 @@ impl App {
             session: None,
             section: Section::Account,
             accent,
-            status: "Zaloguj się danymi konta Synergia otrzymanymi w szkole.".into(),
+            language,
+            status: tr!(
+                "Zaloguj się danymi konta Synergia otrzymanymi w szkole.",
+                "Sign in with the Synergia account provided by your school."
+            )
+            .into(),
             auth_busy: false,
             epoch: 0,
             data: HashMap::new(),
@@ -103,13 +113,17 @@ impl App {
             archive: None,
         };
         if preview {
-            app.login = "Konto pokazowe".into();
+            app.login = tr!("Konto pokazowe", "Demo account").into();
             app.section = Section::Timetable;
             if std::env::args().any(|a| a == "--demo-grades") {
                 app.section = Section::Grades;
             }
             app.data = demo::payloads(app.week);
-            app.status = "PODGLĄD · fikcyjne dane przykładowe · bez połączenia z Librusem".into();
+            app.status = tr!(
+                "PODGLĄD · fikcyjne dane przykładowe · bez połączenia z Librusem",
+                "PREVIEW · fictional sample data · not connected to Librus"
+            )
+            .into();
         } else {
             match vault::load() {
                 Ok(Some(mut credentials)) => {
@@ -120,14 +134,21 @@ impl App {
                         Ok(session) => {
                             app.session = Some(Arc::new(session));
                             app.status = if app.data.is_empty() {
-                                "Konto gotowe. Kliknij Odśwież, aby pobrać pierwszy zapis.".into()
+                                tr!(
+                                    "Konto gotowe. Kliknij Odśwież, aby pobrać pierwszy zapis.",
+                                    "Account ready. Click Refresh to download your first snapshot."
+                                )
+                                .into()
                             } else {
-                                "Ostatni zapis jest gotowy. Sesja zostanie odnowiona przy następnym pobraniu danych.".into()
+                                tr!("Ostatni zapis jest gotowy. Sesja zostanie odnowiona przy następnym pobraniu danych.", "Your last snapshot is ready. The session will renew on your next data request.").into()
                             };
                         }
                         Err(_) => {
-                            app.status =
-                                "Nie można przygotować połączenia. Zaloguj się ponownie.".into()
+                            app.status = tr!(
+                                "Nie można przygotować połączenia. Zaloguj się ponownie.",
+                                "Could not prepare the connection. Please sign in again."
+                            )
+                            .into()
                         }
                     }
                     credentials.password.zeroize();
@@ -136,15 +157,19 @@ impl App {
                     if let Ok(Some(owner)) = cache::last_account() {
                         app.login = owner.clone();
                         app.bind_cache(&owner);
-                        app.status =
-                            "Wyświetlasz ostatni zapis offline. Zaloguj się, aby pobrać nowe dane."
-                                .into();
+                        app.status = tr!(
+                            "Wyświetlasz ostatni zapis offline. Zaloguj się, aby pobrać nowe dane.",
+                            "Showing your last offline snapshot. Sign in to download new data."
+                        )
+                        .into();
                     }
                 }
                 Err(_) => {
-                    app.status =
-                        "Nie udało się odczytać zapisanych danych Windows. Zaloguj się ręcznie."
-                            .into()
+                    app.status = tr!(
+                        "Nie udało się odczytać zapisanych danych Windows. Zaloguj się ręcznie.",
+                        "Could not read saved Windows credentials. Please sign in manually."
+                    )
+                    .into()
                 }
             }
         }
@@ -161,7 +186,7 @@ impl App {
         let archive = match cache::load(owner) {
             Ok(archive) => archive,
             Err(_) => {
-                self.status="Nie udało się odczytać poprzedniego zapisu. Plik pozostanie zachowany do udanego pobrania nowych danych.".into();
+                self.status=tr!("Nie udało się odczytać poprzedniego zapisu. Plik pozostanie zachowany do udanego pobrania nowych danych.", "Could not read the previous snapshot. It will be preserved until new data is downloaded successfully.").into();
                 cache::Archive::new(owner.to_owned())
             }
         };
@@ -205,7 +230,7 @@ impl App {
                 .and_then(|_| cache::activate(&archive.owner))
                 .is_err()
             {
-                self.status="Dane pobrano, ale nie zapisano ich na dysku. Poprzedni plik pozostał zachowany.".into();
+                self.status=tr!("Dane pobrano, ale nie zapisano ich na dysku. Poprzedni plik pozostał zachowany.", "Data downloaded but could not be saved to disk. The previous snapshot was preserved.").into();
             }
         }
     }
@@ -232,7 +257,11 @@ impl App {
         self.accent = accent;
         theme::apply(ctx, accent);
         if !self.demo && accent.save().is_err() {
-            self.status = "Kolor zmieniony. Nie udało się zapisać ustawienia wyglądu.".into();
+            self.status = tr!(
+                "Kolor zmieniony. Nie udało się zapisać ustawienia wyglądu.",
+                "Color changed, but the appearance setting could not be saved."
+            )
+            .into();
         }
     }
     fn sign_in(&mut self, ctx: egui::Context) {
@@ -246,19 +275,23 @@ impl App {
         let epoch = self.epoch;
         let owner = credentials.login.clone();
         self.bind_cache(&owner);
-        self.status = "Logowanie do Librusa…".into();
+        self.status = tr!("Logowanie do Librusa…", "Signing in to Librus…").into();
         let tx = self.tx.clone();
         std::thread::spawn(move || {
             let result = (|| {
                 if !remember {
                     vault::forget().map_err(|_| {
-                        "Nie można usunąć zapisanych danych logowania. Spróbuj ponownie.".to_owned()
+                        tr!(
+                            "Nie można usunąć zapisanych danych logowania. Spróbuj ponownie.",
+                            "Could not remove saved credentials. Please try again."
+                        )
+                        .to_owned()
                     })?;
                 }
                 let session = api::Session::login(&credentials.login, &credentials.password)
                     .map_err(|e| format!("{e:#}"))?;
                 let warning = if remember {
-                    vault::save(&credentials).err().map(|_|"Połączono, ale nie udało się zapamiętać konta w Menedżerze poświadczeń Windows.".into())
+                    vault::save(&credentials).err().map(|_|tr!("Połączono, ale nie udało się zapamiętać konta w Menedżerze poświadczeń Windows.", "Connected, but the account could not be saved in Windows Credential Manager.").into())
                 } else {
                     None
                 };
@@ -285,12 +318,20 @@ impl App {
         }
         if self.demo {
             self.data = demo::payloads(self.week);
-            self.status = "Odświeżono dane przykładowe. Tryb podglądu nie korzysta z sieci.".into();
+            self.status = tr!(
+                "Odświeżono dane przykładowe. Tryb podglądu nie korzysta z sieci.",
+                "Sample data refreshed. Preview mode does not use the network."
+            )
+            .into();
             return;
         }
         let Some(session) = self.session.clone() else {
             self.restore_snapshot(section);
-            self.status = "Zaloguj się, aby odświeżyć zapisane dane.".into();
+            self.status = tr!(
+                "Zaloguj się, aby odświeżyć zapisane dane.",
+                "Sign in to refresh your saved data."
+            )
+            .into();
             self.section = Section::Account;
             return;
         };
@@ -359,12 +400,12 @@ impl App {
         let _ = cache::deactivate();
         self.auth_busy = true;
         self.section = Section::Account;
-        self.status = "Wylogowywanie…".into();
+        self.status = tr!("Wylogowywanie…", "Signing out…").into();
         let tx = self.tx.clone();
         std::thread::spawn(move || {
-            let result=vault::forget().map_err(|_|"Sesję zamknięto, ale zapisanych danych nie usunięto. Usuń wpis LibrusLite w Menedżerze poświadczeń Windows.".to_owned());
+            let result=vault::forget().map_err(|_|tr!("Sesję zamknięto, ale zapisanych danych nie usunięto. Usuń wpis LibrusLite w Menedżerze poświadczeń Windows.", "Session closed, but saved credentials could not be removed. Delete the LibrusLite entry in Windows Credential Manager.").to_owned());
             let remote = session.map(|s| s.logout()).transpose();
-            let result=result.and_then(|_|remote.map(|_|()).map_err(|_|"Wylogowano lokalnie i usunięto zapisane konto. Serwer nie potwierdził wylogowania.".into()));
+            let result=result.and_then(|_|remote.map(|_|()).map_err(|_|tr!("Wylogowano lokalnie i usunięto zapisane konto. Serwer nie potwierdził wylogowania.", "Signed out locally and removed the saved account. The server did not confirm sign-out.").into()));
             let _ = tx.send(Event::Logout { epoch, result });
             ctx.request_repaint();
         });
@@ -381,8 +422,13 @@ impl App {
                             if warning.is_some() {
                                 self.remember = false;
                             }
-                            self.status = warning
-                                .unwrap_or_else(|| "Połączono z Librusem. Miłego dnia!".into());
+                            self.status = warning.unwrap_or_else(|| {
+                                tr!(
+                                    "Połączono z Librusem. Miłego dnia!",
+                                    "Connected to Librus. Have a nice day!"
+                                )
+                                .into()
+                            });
                             if let Some(archive) = &self.archive {
                                 let _ = cache::activate(&archive.owner);
                                 self.section = archive.last_section;
@@ -433,14 +479,21 @@ impl App {
                                 .format("%d.%m.%Y %H:%M")
                                 .to_string();
                             state.updated = Some(updated.clone());
-                            self.status = format!("{} · pobrano {} wpisów", section.title(), count);
+                            self.status = trf!(
+                                "{} · pobrano {} wpisów",
+                                "{} · downloaded {} entries",
+                                section.title(),
+                                count
+                            );
                             self.persist(section, &payload, &updated);
                             self.data.insert(section, payload);
                         }
                         Err(e) => {
-                            self.status =
-                                "Nie udało się pobrać danych. Szczegóły w otwartej zakładce."
-                                    .into();
+                            self.status = tr!(
+                                "Nie udało się pobrać danych. Szczegóły w otwartej zakładce.",
+                                "Could not download data. See the current tab for details."
+                            )
+                            .into();
                             state.error = Some(e);
                             if !self.data.contains_key(&section) {
                                 self.restore_snapshot(section);
@@ -486,7 +539,11 @@ impl App {
                     self.auth_busy = false;
                     self.remember = false;
                     self.status = result.err().unwrap_or_else(|| {
-                        "Wylogowano. Zapisane dane konta zostały usunięte.".into()
+                        tr!(
+                            "Wylogowano. Zapisane dane konta zostały usunięte.",
+                            "Signed out. Saved account credentials have been removed."
+                        )
+                        .into()
                     });
                 }
                 _ => {}
@@ -534,14 +591,14 @@ impl App {
                     ui.vertical(|ui| {
                         ui.label(RichText::new("librus lite").size(23.).strong());
                         ui.small(
-                            RichText::new("Twój dziennik szkolny")
+                            RichText::new(tr!("Twój dziennik szkolny", "Your school journal"))
                                 .size(11.)
                                 .color(MUTED),
                         );
                     });
                 });
                 ui.add_space(if compact { 15. } else { 24. });
-                ui.small(RichText::new("Dziennik").color(MUTED));
+                ui.small(RichText::new(tr!("Dziennik", "School journal")).color(MUTED));
                 ui.add_space(8.);
                 for section in [
                     Section::Timetable,
@@ -566,7 +623,7 @@ impl App {
                     selected = Section::Account;
                 }
                 ui.add_space((ui.available_height() - if compact { 145. } else { 175. }).max(8.));
-                ui.small(RichText::new("Kolor akcentu").color(MUTED));
+                ui.small(RichText::new(tr!("Kolor akcentu", "Accent color")).color(MUTED));
                 ui.horizontal(|ui| {
                     for accent in Accent::ALL {
                         let (rect, response) =
@@ -594,18 +651,18 @@ impl App {
                             if self.connected() { GREEN } else { MUTED },
                         );
                         ui.small(if self.demo {
-                            "Tryb podglądu"
+                            tr!("Tryb podglądu", "Preview mode")
                         } else if self.connected() {
                             if self.session.as_ref().is_some_and(|s| s.is_authenticated()) {
-                                "Połączono z Synergią"
+                                tr!("Połączono z Synergią", "Connected to Synergia")
                             } else {
-                                "Gotowe do pobrania"
+                                tr!("Gotowe do pobrania", "Ready to download")
                             }
                         } else {
                             if self.archive.is_some() {
-                                "Zapis offline"
+                                tr!("Zapis offline", "Offline snapshot")
                             } else {
-                                "Nie zalogowano"
+                                tr!("Nie zalogowano", "Not signed in")
                             }
                         });
                     });
@@ -625,32 +682,77 @@ impl App {
     }
     fn account(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
         let accent = self.accent;
+        theme::glass(accent).show(ui, |ui| {
+            ui.set_min_width(ui.available_width());
+            ui.label(RichText::new(tr!("Język", "Language")).size(21.).strong());
+            ui.label(
+                RichText::new(tr!(
+                    "Wybierz język interfejsu. Zmiana działa od razu.",
+                    "Choose the interface language. Changes apply immediately."
+                ))
+                .color(MUTED),
+            );
+            let mut language = self.language;
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut language, Language::English, "English");
+                ui.selectable_value(&mut language, Language::Polish, "Polski");
+            });
+            if language != self.language {
+                self.language = language;
+                language.activate();
+                self.status = if !self.demo && language.save().is_err() {
+                    tr!(
+                        "Język zmieniony, ale nie udało się zapisać ustawienia.",
+                        "Language changed, but the preference could not be saved."
+                    )
+                    .into()
+                } else {
+                    tr!(
+                        "Język interfejsu został zmieniony.",
+                        "Interface language updated."
+                    )
+                    .into()
+                };
+                ctx.request_repaint();
+            }
+        });
+        ui.add_space(16.);
         theme::glass(accent).show(ui,|ui|{
             ui.set_min_width(ui.available_width());
             if self.connected(){
-                theme::badge(ui,if self.demo{"DANE PRZYKŁADOWE"}else{"KONTO GOTOWE"},GREEN);ui.add_space(12.);ui.label(RichText::new("Połączenie z dziennikiem").size(27.).strong());ui.label(format!("Konto Synergia: {}",self.login));ui.add_space(10.);
-                if !self.demo{ui.label(if self.remember{"Logowanie zostanie zapamiętane na tym komputerze."}else{"Konto nie jest zapisane. Po zamknięciu aplikacji zaloguj się ponownie."});if ui.add_enabled(!self.auth_busy,egui::Button::new("Wyloguj i zapomnij konto")).clicked(){self.sign_out(ctx.clone());}}
-                else{ui.label("Ten podgląd nie loguje się do Librusa i nie zapisuje danych konta.");}
+                theme::badge(ui,if self.demo{tr!("DANE PRZYKŁADOWE", "SAMPLE DATA")}else{tr!("KONTO GOTOWE", "ACCOUNT READY")},GREEN);ui.add_space(12.);ui.label(RichText::new(tr!("Połączenie z dziennikiem", "School journal connection")).size(27.).strong());ui.label(trf!("Konto Synergia: {}", "Synergia account: {}",self.login));ui.add_space(10.);
+                if !self.demo{ui.label(if self.remember{tr!("Logowanie zostanie zapamiętane na tym komputerze.", "You will stay signed in on this computer.")}else{tr!("Konto nie jest zapisane. Po zamknięciu aplikacji zaloguj się ponownie.", "This account is not saved. Sign in again after closing the app.")});if ui.add_enabled(!self.auth_busy,egui::Button::new(tr!("Wyloguj i zapomnij konto", "Sign out and forget account"))).clicked(){self.sign_out(ctx.clone());}}
+                else{ui.label(tr!("Ten podgląd nie loguje się do Librusa i nie zapisuje danych konta.", "This preview does not sign in to Librus or save account credentials."));}
             }else{
-                ui.set_max_width(520.);ui.label(RichText::new("Zaloguj się do Synergii").size(28.).strong());ui.label(RichText::new("Zaloguj się kontem Synergia otrzymanym w szkole.").color(MUTED));ui.add_space(15.);
+                ui.set_max_width(520.);ui.label(RichText::new(tr!("Zaloguj się do Synergii", "Sign in to Synergia")).size(28.).strong());ui.label(RichText::new(tr!("Zaloguj się kontem Synergia otrzymanym w szkole.", "Sign in with the Synergia account provided by your school.")).color(MUTED));ui.add_space(15.);
                 ui.add_enabled_ui(!self.auth_busy,|ui|{
-                    ui.label("Login Synergia");ui.add_sized([ui.available_width(),40.],egui::TextEdit::singleline(&mut self.login).hint_text("Login ze szkoły"));ui.add_space(4.);ui.label("Hasło");let response=ui.add_sized([ui.available_width(),40.],egui::TextEdit::singleline(&mut self.password).password(true).hint_text("Twoje hasło"));ui.add_space(5.);
-                    if ui.checkbox(&mut self.remember,"Zapamiętaj moje logowanie").changed() && !self.remember && vault::forget().is_err(){self.status="Nie można usunąć zapisanych danych. Sprawdź Menedżera poświadczeń Windows.".into();}
-                    ui.small(RichText::new("Dane logowania są przechowywane w Menedżerze poświadczeń Windows.").color(MUTED));ui.add_space(12.);
+                    ui.label(tr!("Login Synergia", "Synergia username"));ui.add_sized([ui.available_width(),40.],egui::TextEdit::singleline(&mut self.login).hint_text(tr!("Login ze szkoły", "School username")));ui.add_space(4.);ui.label(tr!("Hasło", "Password"));let response=ui.add_sized([ui.available_width(),40.],egui::TextEdit::singleline(&mut self.password).password(true).hint_text(tr!("Twoje hasło", "Your password")));ui.add_space(5.);
+                    if ui.checkbox(&mut self.remember,tr!("Zapamiętaj moje logowanie", "Keep me signed in")).changed() && !self.remember && vault::forget().is_err(){self.status=tr!("Nie można usunąć zapisanych danych. Sprawdź Menedżera poświadczeń Windows.", "Could not remove saved credentials. Check Windows Credential Manager.").into();}
+                    ui.small(RichText::new(tr!("Dane logowania są przechowywane w Menedżerze poświadczeń Windows.", "Credentials are stored in Windows Credential Manager.")).color(MUTED));ui.add_space(12.);
                     let valid=!self.login.trim().is_empty() && !self.password.is_empty();
-                    let clicked=ui.add_enabled(valid,egui::Button::new(RichText::new("Połącz z Librusem").strong().color(Color32::from_rgb(10,20,34))).fill(accent.color()).min_size(Vec2::new(200.,44.))).clicked();
+                    let clicked=ui.add_enabled(valid,egui::Button::new(RichText::new(tr!("Połącz z Librusem", "Connect to Librus")).strong().color(Color32::from_rgb(10,20,34))).fill(accent.color()).min_size(Vec2::new(200.,44.))).clicked();
                     if valid && (clicked || (response.lost_focus() && ui.input(|i|i.key_pressed(egui::Key::Enter)))){self.sign_in(ctx.clone());}
                 });
-                ui.add_space(12.);ui.hyperlink_to("Otwórz oficjalną Synergię", "https://synergia.librus.pl/");
-                if self.auth_busy{ui.horizontal(|ui|{ui.spinner();ui.label("Logowanie…");});}
+                ui.add_space(12.);ui.hyperlink_to(tr!("Otwórz oficjalną Synergię", "Open the official Synergia website"), "https://synergia.librus.pl/");
+                if self.auth_busy{ui.horizontal(|ui|{ui.spinner();ui.label(tr!("Logowanie…", "Signing in…"));});}
                 else{ui.add_space(6.);ui.label(RichText::new(&self.status).color(MUTED));}
             }
         });
         ui.add_space(16.);
         theme::glass(accent).show(ui, |ui| {
             ui.set_min_width(ui.available_width());
-            ui.label(RichText::new("Kolor akcentu").size(21.).strong());
-            ui.label(RichText::new("Wybierz kolor przycisków i wyróżnień.").color(MUTED));
+            ui.label(
+                RichText::new(tr!("Kolor akcentu", "Accent color"))
+                    .size(21.)
+                    .strong(),
+            );
+            ui.label(
+                RichText::new(tr!(
+                    "Wybierz kolor przycisków i wyróżnień.",
+                    "Choose a color for buttons and highlights."
+                ))
+                .color(MUTED),
+            );
             ui.add_space(10.);
             ui.horizontal_wrapped(|ui| {
                 for a in Accent::ALL {
@@ -719,8 +821,14 @@ impl eframe::App for App {
                 }
                 if !self.connected() && !self.data.contains_key(&self.section) {
                     theme::glass(self.accent).show(ui, |ui| {
-                        ui.label("Zaloguj się, aby zobaczyć swoje dane.");
-                        if ui.button("Przejdź do logowania").clicked() {
+                        ui.label(tr!(
+                            "Zaloguj się, aby zobaczyć swoje dane.",
+                            "Sign in to view your data."
+                        ));
+                        if ui
+                            .button(tr!("Przejdź do logowania", "Go to sign-in"))
+                            .clicked()
+                        {
                             self.section = Section::Account;
                         }
                     });
@@ -747,21 +855,29 @@ impl eframe::App for App {
                                     28.,
                                 ],
                                 egui::TextEdit::singleline(&mut self.view.search)
-                                    .hint_text("Szukaj w tej zakładce…"),
+                                    .hint_text(tr!("Szukaj w tej zakładce…", "Search this tab…")),
                             );
                         }
                         if self.section == Section::Timetable {
-                            if ui.button("‹").on_hover_text("Poprzedni tydzień").clicked() {
+                            if ui
+                                .button("‹")
+                                .on_hover_text(tr!("Poprzedni tydzień", "Previous week"))
+                                .clicked()
+                            {
                                 self.week -= Duration::weeks(1);
                                 self.data.remove(&Section::Timetable);
                                 self.fetch(ctx.clone());
                             }
-                            if ui.button("Dzisiaj").clicked() {
+                            if ui.button(tr!("Dzisiaj", "Today")).clicked() {
                                 self.week = data::monday(data::today());
                                 self.data.remove(&Section::Timetable);
                                 self.fetch(ctx.clone());
                             }
-                            if ui.button("›").on_hover_text("Następny tydzień").clicked() {
+                            if ui
+                                .button("›")
+                                .on_hover_text(tr!("Następny tydzień", "Next week"))
+                                .clicked()
+                            {
                                 self.week += Duration::weeks(1);
                                 self.data.remove(&Section::Timetable);
                                 self.fetch(ctx.clone());
@@ -776,7 +892,7 @@ impl eframe::App for App {
                             .add_enabled(
                                 !loading,
                                 egui::Button::new(
-                                    RichText::new("Odśwież")
+                                    RichText::new(tr!("Odśwież", "Refresh"))
                                         .strong()
                                         .color(Color32::from_rgb(13, 20, 30)),
                                 )
@@ -797,18 +913,23 @@ impl eframe::App for App {
                             };
                             if ui
                                 .add_enabled(!loading && self.page > 1, egui::Button::new("‹"))
-                                .on_hover_text("Poprzednia strona")
+                                .on_hover_text(tr!("Poprzednia strona", "Previous page"))
                                 .clicked()
                             {
                                 next_page -= 1;
                             }
-                            ui.small(format!("Strona {} · {} wiadomości", self.page, total));
+                            ui.small(trf!(
+                                "Strona {} · {} wiadomości",
+                                "Page {} · {} messages",
+                                self.page,
+                                total
+                            ));
                             if ui
                                 .add_enabled(
                                     !loading && self.page * 20 < total && !self.demo,
                                     egui::Button::new("›"),
                                 )
-                                .on_hover_text("Następna strona")
+                                .on_hover_text(tr!("Następna strona", "Next page"))
                                 .clicked()
                             {
                                 next_page += 1;
@@ -840,13 +961,19 @@ impl eframe::App for App {
                 if let Some(error) = self.loads.get(&self.section).and_then(|s| s.error.as_ref()) {
                     theme::inset().show(ui, |ui| {
                         ui.label(
-                            RichText::new("Nie udało się odświeżyć danych")
-                                .color(RED)
-                                .strong(),
+                            RichText::new(tr!(
+                                "Nie udało się odświeżyć danych",
+                                "Could not refresh data"
+                            ))
+                            .color(RED)
+                            .strong(),
                         );
                         ui.label(error);
                         if self.data.contains_key(&self.section) {
-                            ui.small("Poniżej znajdują się dane z ostatniego udanego pobrania.");
+                            ui.small(tr!(
+                                "Poniżej znajdują się dane z ostatniego udanego pobrania.",
+                                "Showing data from the last successful download below."
+                            ));
                         }
                     });
                     ui.add_space(12.);
@@ -1001,6 +1128,66 @@ fn main() -> eframe::Result {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn profile_language_settings_are_available_before_and_after_login_in_both_languages() {
+        for language in [Language::English, Language::Polish] {
+            crate::i18n::with_language(language, || {
+                for connected in [false, true] {
+                    let mut app = cached_app();
+                    app.language = language;
+                    app.demo = connected;
+                    let ctx = egui::Context::default();
+                    theme::apply(&ctx, app.accent);
+                    let output = ctx.run(
+                        egui::RawInput {
+                            screen_rect: Some(egui::Rect::from_min_size(
+                                egui::Pos2::ZERO,
+                                Vec2::new(1000., 1000.),
+                            )),
+                            ..Default::default()
+                        },
+                        |ctx| {
+                            egui::CentralPanel::default().show(ctx, |ui| app.account(ui, ctx));
+                        },
+                    );
+                    fn collect(shape: &egui::Shape, text: &mut String) {
+                        match shape {
+                            egui::Shape::Text(value) => {
+                                text.push_str(&value.galley.job.text);
+                                text.push('\n');
+                            }
+                            egui::Shape::Vec(shapes) => {
+                                for shape in shapes {
+                                    collect(shape, text);
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    let mut text = String::new();
+                    for shape in output.shapes {
+                        collect(&shape.shape, &mut text);
+                    }
+                    assert!(text.contains(if language == Language::English {
+                        "Language"
+                    } else {
+                        "Język"
+                    }));
+                    assert!(text.contains("English") && text.contains("Polski"));
+                    assert!(text.contains(if language == Language::English {
+                        "Accent color"
+                    } else {
+                        "Kolor akcentu"
+                    }));
+                    assert!(text.contains(if connected {
+                        tr!("Połączenie z dziennikiem", "School journal connection")
+                    } else {
+                        tr!("Zaloguj się do Synergii", "Sign in to Synergia")
+                    }));
+                }
+            });
+        }
+    }
     fn cached_app() -> App {
         let (tx, rx) = mpsc::channel();
         let week = data::monday(data::today());
@@ -1011,6 +1198,7 @@ mod tests {
             session: None,
             section: Section::Grades,
             accent: Accent::Cobalt,
+            language: Language::English,
             status: "old".into(),
             auth_busy: false,
             epoch: 7,

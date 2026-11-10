@@ -1,4 +1,5 @@
 use crate::data::{self, Attendance, Grade, Notice, Payload, Section};
+use crate::i18n::{tr, trf};
 use anyhow::{bail, Context, Result};
 use chrono::NaiveDate;
 use reqwest::{
@@ -24,7 +25,7 @@ const AUTH_SCOPE: &str =
 fn message_url(id: &str) -> Result<Url> {
     let mut url = Url::parse("https://wiadomosci.librus.pl/api/inbox/messages/")?;
     url.path_segments_mut()
-        .map_err(|_| anyhow::anyhow!("Nieprawidłowy adres wiadomości"))?
+        .map_err(|_| anyhow::anyhow!(tr!("Nieprawidłowy adres wiadomości", "Invalid message URL")))?
         .pop_if_empty()
         .push(id);
     Ok(url)
@@ -51,7 +52,10 @@ fn collect_pages(
     let mut items = Vec::new();
     for _ in 0..100 {
         if !visited.insert(url.as_str().to_owned()) {
-            bail!("Librus zwrócił zapętlone stronicowanie danych.");
+            bail!(tr!(
+                "Librus zwrócił zapętlone stronicowanie danych.",
+                "Librus returned a pagination loop."
+            ));
         }
         let payload = fetch(&url)?;
         items.extend(data::records(&payload, key)?.iter().cloned());
@@ -59,20 +63,22 @@ fn collect_pages(
         let next = match next {
             Value::Null | Value::Bool(false) => None,
             Value::String(value) => Some(value.as_str()),
-            Value::Object(value) => Some(
-                value
-                    .get("Url")
-                    .and_then(Value::as_str)
-                    .context("Nieoczekiwany adres kolejnej strony Librusa")?,
-            ),
-            _ => bail!("Nieoczekiwany format stronicowania Librusa"),
+            Value::Object(value) => Some(value.get("Url").and_then(Value::as_str).context(tr!(
+                "Nieoczekiwany adres kolejnej strony Librusa",
+                "Unexpected Librus next-page URL"
+            ))?),
+            _ => bail!(tr!(
+                "Nieoczekiwany format stronicowania Librusa",
+                "Unexpected Librus pagination format"
+            )),
         };
         let Some(next) = next.filter(|s| !s.trim().is_empty()) else {
             return Ok(items);
         };
-        let mut candidate = url
-            .join(next)
-            .context("Nieprawidłowy adres kolejnej strony Librusa")?;
+        let mut candidate = url.join(next).context(tr!(
+            "Nieprawidłowy adres kolejnej strony Librusa",
+            "Invalid Librus next-page URL"
+        ))?;
         candidate.set_fragment(None);
         // Follow only server-advertised pages of this exact collection. Never
         // invent page/limit parameters or forward the cookie jar elsewhere.
@@ -81,11 +87,17 @@ fn collect_pages(
             || !candidate.username().is_empty()
             || candidate.password().is_some()
         {
-            bail!("Librus zwrócił nieoczekiwany adres kolejnej strony danych.");
+            bail!(tr!(
+                "Librus zwrócił nieoczekiwany adres kolejnej strony danych.",
+                "Librus returned an unexpected next-page URL."
+            ));
         }
         url = candidate;
     }
-    bail!("Librus zwrócił zbyt wiele stron danych. Nie pokazano niepełnego zestawu.")
+    bail!(tr!(
+        "Librus zwrócił zbyt wiele stron danych. Nie pokazano niepełnego zestawu.",
+        "Librus returned too many pages. Incomplete data was not displayed."
+    ))
 }
 
 pub struct Session {
@@ -103,7 +115,7 @@ pub struct Session {
 struct SessionExpired;
 impl std::fmt::Display for SessionExpired {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"Sesja Librusa wygasła i nie udało się jej odnowić. Zaloguj się ponownie; poprzedni zapis danych pozostał zachowany.")
+        f.write_str(tr!("Sesja Librusa wygasła i nie udało się jej odnowić. Zaloguj się ponownie; poprzedni zapis danych pozostał zachowany.", "Your Librus session expired and could not be renewed. Sign in again; your previous data snapshot was preserved."))
     }
 }
 impl std::error::Error for SessionExpired {}
@@ -256,10 +268,18 @@ fn secure_message_redirect(mut url: Url) -> Result<Url> {
         && url.scheme() == "http"
         && url.port_or_known_default() == Some(80)
     {
-        url.set_scheme("https")
-            .map_err(|_| anyhow::anyhow!("Nieprawidłowy adres modułu wiadomości"))?;
-        url.set_port(None)
-            .map_err(|_| anyhow::anyhow!("Nieprawidłowy port modułu wiadomości"))?;
+        url.set_scheme("https").map_err(|_| {
+            anyhow::anyhow!(tr!(
+                "Nieprawidłowy adres modułu wiadomości",
+                "Invalid messaging module URL"
+            ))
+        })?;
+        url.set_port(None).map_err(|_| {
+            anyhow::anyhow!(tr!(
+                "Nieprawidłowy port modułu wiadomości",
+                "Invalid messaging module port"
+            ))
+        })?;
     }
     Ok(url)
 }
@@ -304,7 +324,10 @@ impl Session {
     fn renew(&self, generation: u64) -> Result<()> {
         let _guard = self.renewal.lock().unwrap_or_else(|e| e.into_inner());
         if self.closed.load(Ordering::Acquire) {
-            bail!("Konto zostało wylogowane.");
+            bail!(tr!(
+                "Konto zostało wylogowane.",
+                "The account has been signed out."
+            ));
         }
         if self.generation.load(Ordering::Acquire) != generation {
             return Ok(());
@@ -322,9 +345,11 @@ impl Session {
         })()
         .unwrap_or(false);
         if !refreshed {
-            let fresh = Self::login(&self.credentials.login, &self.credentials.password).context(
+            let fresh =
+                Self::login(&self.credentials.login, &self.credentials.password).context(tr!(
                 "Nie udało się automatycznie odnowić logowania. Poprzedni zapis został zachowany",
-            )?;
+                "Could not renew the session automatically. Your previous snapshot was preserved"
+            ))?;
             *self.client.lock().unwrap_or_else(|e| e.into_inner()) = fresh.client();
         }
         self.messages_ready.store(false, Ordering::Release);
@@ -410,7 +435,10 @@ impl Session {
         retry_expired(
             || {
                 if self.closed.load(Ordering::Acquire) {
-                    bail!("Konto zostało wylogowane.");
+                    bail!(tr!(
+                        "Konto zostało wylogowane.",
+                        "The account has been signed out."
+                    ));
                 }
                 if url.starts_with("https://wiadomosci.librus.pl/api/") {
                     self.prepare_messages()?;
@@ -433,7 +461,10 @@ impl Session {
             let status = response.status();
             let text = response.text().unwrap_or_default();
             if text.to_ascii_lowercase().contains("insufficient scopes") {
-                bail!("Konto nie ma uprawnień do tych danych.");
+                bail!(tr!(
+                    "Konto nie ma uprawnień do tych danych.",
+                    "This account does not have permission to access this data."
+                ));
             }
             if status.as_u16() == 403
                 && self
@@ -442,7 +473,10 @@ impl Session {
                     .send()
                     .is_ok_and(|r| r.status().is_success())
             {
-                bail!("Librus odmówił dostępu do tych danych (HTTP 403).");
+                bail!(tr!(
+                    "Librus odmówił dostępu do tych danych (HTTP 403).",
+                    "Librus denied access to this data (HTTP 403)."
+                ));
             }
             self.authenticated.store(false, Ordering::Release);
             return Err(SessionExpired.into());
@@ -510,11 +544,19 @@ impl Session {
                             .iter()
                             .find(|c| data::text(c, "Id") == data::text(&v["Category"], "Id"));
                         Grade {
-                            subject: data::resolve(&v["Subject"], &subjects, "Przedmiot"),
+                            subject: data::resolve(
+                                &v["Subject"],
+                                &subjects,
+                                tr!("Przedmiot", "Subject"),
+                            ),
                             value: data::text(v, "Grade"),
                             category: data::resolve(&v["Category"], &categories, "Kategoria"),
                             date: data::text(v, "Date"),
-                            teacher: data::resolve(&v["AddedBy"], &teachers, "Nauczyciel"),
+                            teacher: data::resolve(
+                                &v["AddedBy"],
+                                &teachers,
+                                tr!("Nauczyciel", "Teacher"),
+                            ),
                             semester: data::text(v, "Semester"),
                             numeric: data::grade_number(
                                 &data::text(v, "Grade"),
@@ -580,7 +622,7 @@ impl Session {
                         })
                         .collect::<Vec<_>>()
                 });
-                let (mut behaviour,behaviour_error)=match behaviour{Ok(items)=>(items,None),Err(_)=>(vec![],Some("Nie udało się odświeżyć zachowania. Pozostawiono poprzedni zapis, jeśli jest dostępny.".into()))};
+                let (mut behaviour,behaviour_error)=match behaviour{Ok(items)=>(items,None),Err(_)=>(vec![],Some(tr!("Nie udało się odświeżyć zachowania. Pozostawiono poprzedni zapis, jeśli jest dostępny.", "Could not refresh behavior grades. The previous snapshot was kept, if available.").into()))};
                 behaviour.extend(from_subject);
                 Ok(Payload::Grades {
                     items: rows,
@@ -602,7 +644,9 @@ impl Session {
                         let subject = lessons
                             .iter()
                             .find(|l| data::text(l, "Id") == lesson_id)
-                            .map(|l| data::resolve(&l["Subject"], &subjects, "Przedmiot"))
+                            .map(|l| {
+                                data::resolve(&l["Subject"], &subjects, tr!("Przedmiot", "Subject"))
+                            })
                             .unwrap_or_else(|| "—".into());
                         Attendance {
                             date: data::text(v, "Date"),
@@ -611,7 +655,7 @@ impl Session {
                             kind: kind
                                 .map(|t| data::text(t, "Name"))
                                 .filter(|s| !s.is_empty())
-                                .unwrap_or_else(|| format!("Typ #{type_id}")),
+                                .unwrap_or_else(|| trf!("Typ #{type_id}", "Type #{type_id}")),
                             present: kind.and_then(|t| t.get("IsPresenceKind")).map(data::flag),
                         }
                     })
@@ -630,7 +674,7 @@ impl Session {
                         content: data::plain_html(&data::text(v, "Content")),
                         date: data::text(v, "CreationDate"),
                         until: data::text(v, "EndDate"),
-                        author: data::resolve(&v["AddedBy"], &teachers, "Szkoła"),
+                        author: data::resolve(&v["AddedBy"], &teachers, tr!("Szkoła", "School")),
                         unread: !data::flag(&v["WasRead"]),
                     })
                     .collect();
@@ -663,7 +707,10 @@ impl Session {
                     });
                 Ok(Payload::Messages { items, total })
             }
-            Section::Account => bail!("Zakładka konta nie pobiera danych."),
+            Section::Account => bail!(tr!(
+                "Zakładka konta nie pobiera danych.",
+                "The profile tab does not download data."
+            )),
         }
     }
 
@@ -681,7 +728,10 @@ impl Session {
                         && u.port_or_known_default() == Some(443))
             },
         )
-        .context("Nie udało się otworzyć modułu wiadomości")?;
+        .context(tr!(
+            "Nie udało się otworzyć modułu wiadomości",
+            "Could not open the messaging module"
+        ))?;
         self.messages_ready.store(true, Ordering::Release);
         Ok(())
     }
@@ -689,10 +739,10 @@ impl Session {
     pub fn message_detail(&self, id: &str) -> Result<data::Message> {
         let url = message_url(id)?;
         let value = self.get_url(url.as_str())?;
-        let item = value
-            .get("data")
-            .filter(|v| v.is_object())
-            .context("Librus zwrócił nieoczekiwany format wiadomości")?;
+        let item = value.get("data").filter(|v| v.is_object()).context(tr!(
+            "Librus zwrócił nieoczekiwany format wiadomości",
+            "Librus returned an unexpected message format"
+        ))?;
         Ok(data::message(item, true))
     }
 

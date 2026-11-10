@@ -1,3 +1,4 @@
+use crate::i18n::{tr, trf};
 use crate::{
     data::{self, Attendance, Grade, Lesson, Message, Notice, Payload, Section},
     theme::{self, Accent, GREEN, MUTED, RED, TEXT},
@@ -44,19 +45,29 @@ pub fn heading(
             .on_hover_text(section.subtitle());
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             if demo {
-                theme::badge(ui, "PODGLĄD", accent.color());
+                theme::badge(ui, tr!("PODGLĄD", "PREVIEW"), accent.color());
             }
             let label = updated
-                .map(|date| format!("Zapis: {date}"))
+                .map(|date| trf!("Zapis: {date}", "Saved: {date}"))
                 .unwrap_or_else(|| today.format("%d.%m.%Y").to_string());
             ui.small(RichText::new(label).color(MUTED))
                 .on_hover_text(if updated.is_some() {
-                    "Ostatni udany zapis danych"
+                    tr!(
+                        "Ostatni udany zapis danych",
+                        "Last successful data snapshot"
+                    )
                 } else {
-                    "Dzisiejsza data"
+                    tr!("Dzisiejsza data", "Today's date")
                 });
             if ui.available_width() > 260. {
-                ui.small(RichText::new(format!("Rok szkolny {year}/{}", year + 1)).color(MUTED));
+                ui.small(
+                    RichText::new(trf!(
+                        "Rok szkolny {year}/{}",
+                        "School year {year}/{}",
+                        year + 1
+                    ))
+                    .color(MUTED),
+                );
             }
         });
     })
@@ -81,8 +92,8 @@ fn stats(ui: &mut egui::Ui, accent: Accent, items: [(&str, String); 3]) {
             for (i, (label, value)) in items.into_iter().enumerate() {
                 cols[i].with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
                     ui.label(RichText::new(label).size(12.).color(MUTED));
-                    let response=ui.label(RichText::new(&value).size(if value.chars().count()>12 {19.}else{22.}).strong().color(if label=="Średnia ocen" {accent.color()}else{TEXT}));
-                    if label=="Średnia ocen" {response.on_hover_text("Średnia arytmetyczna / ważona. Oceny cząstkowe, bez zachowania. Nieustawiona waga = 1.");}
+                    let response=ui.label(RichText::new(&value).size(if value.chars().count()>12 {19.}else{22.}).strong().color(if label==tr!("Średnia ocen", "Grade average") {accent.color()}else{TEXT}));
+                    if label==tr!("Średnia ocen", "Grade average") {response.on_hover_text(tr!("Średnia arytmetyczna / ważona. Oceny cząstkowe, bez zachowania. Nieustawiona waga = 1.", "Arithmetic / weighted average. Constituent grades, excluding behavior. Unset weight = 1."));}
                 });
             }
         });
@@ -113,9 +124,12 @@ pub fn behaviour(ui: &mut egui::Ui, payload: Option<&Payload>, accent: Accent) {
                     ui.label(RichText::new(&grade.value).strong().color(accent.color()));
                 })
                 .response
-                .on_hover_text(format!(
+                .on_hover_text(trf!(
                     "{}\nSemestr {} · {}",
-                    grade.description, grade.semester, grade.date
+                    "{}\nSemester {} · {}",
+                    grade.description,
+                    grade.semester,
+                    grade.date
                 ));
         }
         if behaviour.is_empty() {
@@ -124,7 +138,7 @@ pub fn behaviour(ui: &mut egui::Ui, payload: Option<&Payload>, accent: Accent) {
     } else {
         ui.label("—");
     }
-    ui.label(RichText::new("Zachowanie").color(MUTED));
+    ui.label(RichText::new(tr!("Zachowanie", "Behavior")).color(MUTED));
 }
 fn matches(search: &str, parts: &[&str]) -> bool {
     let search = search.to_lowercase();
@@ -193,7 +207,13 @@ pub(crate) fn average_pair<'a>(
 ) -> String {
     let display = |value: Option<f64>| {
         value
-            .map(|v| format!("{v:.2}").replace('.', ","))
+            .map(|v| {
+                if crate::i18n::Language::current() == crate::i18n::Language::Polish {
+                    format!("{v:.2}").replace('.', ",")
+                } else {
+                    format!("{v:.2}")
+                }
+            })
             .unwrap_or_else(|| "—".into())
     };
     format!(
@@ -208,26 +228,38 @@ fn grades(ui: &mut egui::Ui, items: &[Grade], accent: Accent, state: &mut ViewSt
         ui,
         accent,
         [
-            ("Wpisane oceny", items.len().to_string()),
-            ("Przedmioty", subjects.len().to_string()),
-            ("Średnia ocen", average_pair(items.iter(), state.semester)),
+            (
+                tr!("Wpisane oceny", "Recorded grades"),
+                items.len().to_string(),
+            ),
+            (tr!("Przedmioty", "Subjects"), subjects.len().to_string()),
+            (
+                tr!("Średnia ocen", "Grade average"),
+                average_pair(items.iter(), state.semester),
+            ),
         ],
     );
     ui.horizontal(|ui| {
-        dim(ui, "TWOJE PRZEDMIOTY");
+        dim(ui, tr!("TWOJE PRZEDMIOTY", "YOUR SUBJECTS"));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             egui::ComboBox::from_id_salt("semester")
                 .selected_text(match state.semester {
-                    1 => "Semestr 1",
-                    2 => "Semestr 2",
-                    _ => "Cały rok",
+                    1 => tr!("Semestr 1", "Semester 1"),
+                    2 => tr!("Semestr 2", "Semester 2"),
+                    _ => tr!("Cały rok", "Full year"),
                 })
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(&mut state.semester, 0, "Cały rok");
-                    ui.selectable_value(&mut state.semester, 1, "Semestr 1");
-                    ui.selectable_value(&mut state.semester, 2, "Semestr 2");
+                    ui.selectable_value(&mut state.semester, 0, tr!("Cały rok", "Full year"));
+                    ui.selectable_value(&mut state.semester, 1, tr!("Semestr 1", "Semester 1"));
+                    ui.selectable_value(&mut state.semester, 2, tr!("Semestr 2", "Semester 2"));
                 });
-            ui.small(RichText::new("Średnie: arytm. / ważona").color(MUTED));
+            ui.small(
+                RichText::new(tr!(
+                    "Średnie: arytm. / ważona",
+                    "Averages: arithmetic / weighted"
+                ))
+                .color(MUTED),
+            );
         });
     });
     let mut grouped: BTreeMap<&str, Vec<&Grade>> = BTreeMap::new();
@@ -242,8 +274,11 @@ fn grades(ui: &mut egui::Ui, items: &[Grade], accent: Accent, state: &mut ViewSt
         empty(
             ui,
             accent,
-            "Brak ocen do wyświetlenia",
-            "Nie ma jeszcze wpisów albo żaden nie pasuje do filtrów.",
+            tr!("Brak ocen do wyświetlenia", "No grades to display"),
+            tr!(
+                "Nie ma jeszcze wpisów albo żaden nie pasuje do filtrów.",
+                "There are no entries yet, or none match your filters."
+            ),
         );
     }
     if !grouped.is_empty() {
@@ -310,17 +345,23 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
         ui,
         accent,
         [
-            ("Obecność we wpisach", percentage),
-            ("Obecności", present.to_string()),
-            ("Pozostałe wpisy", (items.len() - present).to_string()),
+            (
+                tr!("Obecność we wpisach", "Recorded attendance"),
+                percentage,
+            ),
+            (tr!("Obecności", "Present entries"), present.to_string()),
+            (
+                tr!("Pozostałe wpisy", "Other entries"),
+                (items.len() - present).to_string(),
+            ),
         ],
     );
-    const LABELS: [&str; 5] = [
-        "O · Obecny",
-        "N · Nieobecny",
-        "NU · Nieobecny usprawiedliwiony",
-        "Z · Zwolniony",
-        "Inne / spóźnienia",
+    let labels: [&str; 5] = [
+        tr!("O · Obecny", "O · Present"),
+        tr!("N · Nieobecny", "N · Absent"),
+        tr!("NU · Nieobecny usprawiedliwiony", "NU · Excused absence"),
+        tr!("Z · Zwolniony", "Z · Released"),
+        tr!("Inne / spóźnienia", "Other / late arrivals"),
     ];
     const CODES: [&str; 5] = ["O", "N", "NU", "Z", "?"];
     let colors = [
@@ -332,33 +373,37 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
     ];
     ui.horizontal_wrapped(|ui| {
         ui.menu_button(
-            format!(
+            trf!(
                 "Typy frekwencji · {}/5 ▾",
+                "Attendance types · {}/5 ▾",
                 state.attendance_types.iter().filter(|v| **v).count()
             ),
             |ui| {
                 ui.horizontal(|ui| {
-                    if ui.small_button("Wszystkie").clicked() {
+                    if ui.small_button(tr!("Wszystkie", "Select all")).clicked() {
                         state.attendance_types = [true; 5];
                     }
-                    if ui.small_button("Żadne").clicked() {
+                    if ui.small_button(tr!("Żadne", "Clear all")).clicked() {
                         state.attendance_types = [false; 5];
                     }
                 });
                 ui.separator();
-                for (i, label) in LABELS.iter().enumerate() {
+                for (i, label) in labels.iter().enumerate() {
                     ui.checkbox(&mut state.attendance_types[i], *label);
                 }
             },
         );
         ui.small(
-            RichText::new("Dni zawierające dowolny zaznaczony typ · pokazujemy cały dzień")
-                .color(MUTED),
+            RichText::new(tr!(
+                "Dni zawierające dowolny zaznaczony typ · pokazujemy cały dzień",
+                "Days with any selected type · all entries in the day stay visible"
+            ))
+            .color(MUTED),
         );
     });
     ui.horizontal_wrapped(|ui| {
         for i in 0..4 {
-            ui.colored_label(colors[i], LABELS[i]);
+            ui.colored_label(colors[i], labels[i]);
         }
     });
     let days = attendance_days(items, state);
@@ -366,8 +411,11 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
         empty(
             ui,
             accent,
-            "Brak pasujących dni",
-            "Zaznacz typy frekwencji lub zmień wyszukiwanie.",
+            tr!("Brak pasujących dni", "No matching days"),
+            tr!(
+                "Zaznacz typy frekwencji lub zmień wyszukiwanie.",
+                "Select attendance types or change your search."
+            ),
         );
     }
     for (date, entries) in days.iter().rev() {
@@ -378,13 +426,13 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
                     if let Ok(day) = NaiveDate::parse_from_str(date, "%Y-%m-%d") {
                         ui.small(
                             [
-                                "Poniedziałek",
-                                "Wtorek",
-                                "Środa",
-                                "Czwartek",
-                                "Piątek",
-                                "Sobota",
-                                "Niedziela",
+                                tr!("Poniedziałek", "Monday"),
+                                tr!("Wtorek", "Tuesday"),
+                                tr!("Środa", "Wednesday"),
+                                tr!("Czwartek", "Thursday"),
+                                tr!("Piątek", "Friday"),
+                                tr!("Sobota", "Saturday"),
+                                tr!("Niedziela", "Sunday"),
                             ][day.weekday().num_days_from_monday() as usize],
                         );
                     }
@@ -392,7 +440,9 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
                 for a in entries {
                     let kind = attendance_type(a);
                     ui.vertical(|ui| {
-                        ui.small(RichText::new(format!("Lekcja {}", a.lesson)).color(MUTED));
+                        ui.small(
+                            RichText::new(trf!("Lekcja {}", "Lesson {}", a.lesson)).color(MUTED),
+                        );
                         let code = if kind == 4 && a.kind.to_lowercase().contains("spóź") {
                             "S"
                         } else {
@@ -401,9 +451,13 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
                         theme::badge(ui, code, colors[kind]);
                     })
                     .response
-                    .on_hover_text(format!(
+                    .on_hover_text(trf!(
                         "{} · lekcja {}\n{}\n{}",
-                        a.date, a.lesson, a.subject, a.kind
+                        "{} · lesson {}\n{}\n{}",
+                        a.date,
+                        a.lesson,
+                        a.subject,
+                        a.kind
                     ));
                 }
             });
@@ -418,9 +472,12 @@ fn notices(ui: &mut egui::Ui, items: &[Notice], accent: Accent, state: &ViewStat
         ui,
         accent,
         [
-            ("Ogłoszenia", items.len().to_string()),
-            ("Nieprzeczytane", unread.to_string()),
-            ("Źródło", "Twoja szkoła".into()),
+            (tr!("Ogłoszenia", "Notices"), items.len().to_string()),
+            (tr!("Nieprzeczytane", "Unread"), unread.to_string()),
+            (
+                tr!("Źródło", "Source"),
+                tr!("Twoja szkoła", "Your school").into(),
+            ),
         ],
     );
     let filtered: Vec<_> = items
@@ -431,8 +488,11 @@ fn notices(ui: &mut egui::Ui, items: &[Notice], accent: Accent, state: &ViewStat
         empty(
             ui,
             accent,
-            "Spokojnie, nic nowego",
-            "Brak ogłoszeń pasujących do wyszukiwania.",
+            tr!("Spokojnie, nic nowego", "Nothing new here"),
+            tr!(
+                "Brak ogłoszeń pasujących do wyszukiwania.",
+                "No notices match your search."
+            ),
         );
     }
     for (index, n) in filtered.into_iter().enumerate() {
@@ -440,7 +500,7 @@ fn notices(ui: &mut egui::Ui, items: &[Notice], accent: Accent, state: &ViewStat
             ui.set_min_width(ui.available_width());
             ui.horizontal_wrapped(|ui| {
                 if n.unread {
-                    theme::badge(ui, "NOWE", accent.color());
+                    theme::badge(ui, tr!("NOWE", "NEW"), accent.color());
                 }
                 dim(ui, format!("{}  ·  {}", short_date(&n.date), n.author));
             });
@@ -453,8 +513,12 @@ fn notices(ui: &mut egui::Ui, items: &[Notice], accent: Accent, state: &ViewStat
                     if !n.until.is_empty() {
                         ui.add_space(8.);
                         ui.small(
-                            RichText::new(format!("Ważne do: {}", short_date(&n.until)))
-                                .color(MUTED),
+                            RichText::new(trf!(
+                                "Ważne do: {}",
+                                "Valid until: {}",
+                                short_date(&n.until)
+                            ))
+                            .color(MUTED),
                         );
                     }
                 });
@@ -469,13 +533,16 @@ fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: NaiveDat
         ui,
         accent,
         [
-            ("Lekcje w tygodniu", active.to_string()),
             (
-                "Zastępstwa",
+                tr!("Lekcje w tygodniu", "Lessons this week"),
+                active.to_string(),
+            ),
+            (
+                tr!("Zastępstwa", "Substitutions"),
                 items.iter().filter(|l| l.substitution).count().to_string(),
             ),
             (
-                "Odwołane",
+                tr!("Odwołane", "Canceled"),
                 items.iter().filter(|l| l.canceled).count().to_string(),
             ),
         ],
@@ -538,7 +605,12 @@ fn messages(
     );
     list_ui.set_clip_rect(list_rect.shrink(1.).intersect(ui.clip_rect()));
     list_ui.horizontal(|ui| {
-        ui.label(RichText::new("ODEBRANE").size(12.).strong().color(color));
+        ui.label(
+            RichText::new(tr!("ODEBRANE", "INBOX"))
+                .size(12.)
+                .strong()
+                .color(color),
+        );
         ui.small(format!("{} / {}", filtered.len(), items.len()));
     });
     list_ui.separator();
@@ -548,7 +620,10 @@ fn messages(
         .max_height(list_ui.available_height())
         .show(&mut list_ui, |ui| {
             if filtered.is_empty() {
-                ui.label("Brak pasujących wiadomości.");
+                ui.label(tr!(
+                    "Brak pasujących wiadomości.",
+                    "No messages match your search."
+                ));
             }
             for m in filtered {
                 let chosen = selected == Some(m.id.as_str());
@@ -578,7 +653,7 @@ fn messages(
                                 MUTED
                             }));
                             if m.unread {
-                                ui.colored_label(color, "● Nowa");
+                                ui.colored_label(color, tr!("● Nowa", "● New"));
                             }
                         });
                         ui.add(
@@ -602,7 +677,7 @@ fn messages(
                             );
                         }
                         if m.has_files {
-                            ui.small(RichText::new("Załączniki").color(color));
+                            ui.small(RichText::new(tr!("Załączniki", "Attachments")).color(color));
                         }
                     });
                 if chosen {
@@ -618,7 +693,10 @@ fn messages(
                 let response = card.response.interact(egui::Sense::click());
                 if response
                     .clone()
-                    .on_hover_text("Otwórz wiadomość. Librus może oznaczyć ją jako przeczytaną.")
+                    .on_hover_text(tr!(
+                        "Otwórz wiadomość. Librus może oznaczyć ją jako przeczytaną.",
+                        "Open message. Librus may mark it as read."
+                    ))
                     .clicked()
                 {
                     clicked = Some(m.id.clone());
@@ -638,7 +716,7 @@ fn messages(
     );
     reader_ui.set_clip_rect(reader_rect.shrink(1.).intersect(ui.clip_rect()));
     reader_ui.label(
-        RichText::new("PODGLĄD WIADOMOŚCI")
+        RichText::new(tr!("PODGLĄD WIADOMOŚCI", "MESSAGE PREVIEW"))
             .size(12.)
             .strong()
             .color(color),
@@ -652,7 +730,7 @@ fn messages(
             if loading {
                 ui.horizontal(|ui| {
                     ui.spinner();
-                    ui.label("Otwieranie wiadomości…");
+                    ui.label(tr!("Otwieranie wiadomości…", "Opening message…"));
                 });
             }
             if let Some(error) = detail_error {
@@ -671,23 +749,37 @@ fn messages(
                 if !message.attachments.is_empty() {
                     ui.add_space(18.);
                     ui.separator();
-                    ui.label(RichText::new("ZAŁĄCZNIKI").size(12.).strong().color(color));
+                    ui.label(
+                        RichText::new(tr!("ZAŁĄCZNIKI", "ATTACHMENTS"))
+                            .size(12.)
+                            .strong()
+                            .color(color),
+                    );
                     for name in &message.attachments {
                         ui.label(name);
                     }
                     ui.hyperlink_to(
-                        "Otwórz załączniki w Librusie",
+                        tr!("Otwórz załączniki w Librusie", "Open attachments in Librus"),
                         "https://wiadomosci.librus.pl/nowy/inbox",
                     );
                 }
             } else if !loading && detail_error.is_none() {
                 ui.add_space(22.);
                 ui.label(
-                    RichText::new("Wybierz wiadomość z listy")
-                        .size(22.)
-                        .strong(),
+                    RichText::new(tr!(
+                        "Wybierz wiadomość z listy",
+                        "Select a message from the list"
+                    ))
+                    .size(22.)
+                    .strong(),
                 );
-                dim(ui, "Tutaj przeczytasz jej treść i zobaczysz załączniki.");
+                dim(
+                    ui,
+                    tr!(
+                        "Tutaj przeczytasz jej treść i zobaczysz załączniki.",
+                        "Read its content and view attachments here."
+                    ),
+                );
             }
         });
     clicked
@@ -698,12 +790,15 @@ pub fn unloaded(ui: &mut egui::Ui, section: Section, accent: Accent, loading: bo
         ui,
         accent,
         if loading {
-            "Pobieranie danych…"
+            tr!("Pobieranie danych…", "Downloading data…")
         } else {
-            "Gotowe, kiedy Ty"
+            tr!("Gotowe, kiedy Ty", "Ready when you are")
         },
         if loading {
-            "Łączę się z Twoim dziennikiem. To może potrwać chwilę."
+            tr!(
+                "Łączę się z Twoim dziennikiem. To może potrwać chwilę.",
+                "Connecting to your school journal. This may take a moment."
+            )
         } else {
             section.subtitle()
         },
@@ -713,6 +808,38 @@ pub fn unloaded(ui: &mut egui::Ui, section: Section, accent: Accent, loading: bo
 #[cfg(test)]
 mod layout_tests {
     use super::*;
+    #[test]
+    fn both_languages_preserve_compact_layouts_and_localize_average_numbers() {
+        for language in [
+            crate::i18n::Language::English,
+            crate::i18n::Language::Polish,
+        ] {
+            crate::i18n::with_language(language, || {
+                compact_heading_fits_one_row_in_every_tab();
+                grades_and_week_fit_small_and_large_viewports();
+                message_panes_use_full_viewport_and_distinct_accent_surfaces();
+                let Payload::Grades { mut items, .. } =
+                    crate::demo::payloads(data::monday(data::today()))
+                        .remove(&Section::Grades)
+                        .unwrap()
+                else {
+                    unreachable!()
+                };
+                items.truncate(1);
+                items[0].numeric = Some(4.5);
+                let before = serde_json::to_value(&items).unwrap();
+                assert_eq!(
+                    average_pair(items.iter(), 0),
+                    if language == crate::i18n::Language::English {
+                        "[4.50]/[4.50]"
+                    } else {
+                        "[4,50]/[4,50]"
+                    }
+                );
+                assert_eq!(before, serde_json::to_value(items).unwrap());
+            });
+        }
+    }
     #[test]
     fn message_panes_use_full_viewport_and_distinct_accent_surfaces() {
         for accent in Accent::ALL {

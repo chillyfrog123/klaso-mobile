@@ -1,4 +1,5 @@
 use crate::data::{Message, Payload, Section};
+use crate::i18n::tr;
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -43,11 +44,12 @@ impl Archive {
     }
 }
 fn root() -> Result<PathBuf> {
-    Ok(
-        PathBuf::from(std::env::var_os("LOCALAPPDATA").context("Brak katalogu danych aplikacji")?)
-            .join("LibrusLite")
-            .join("cache"),
-    )
+    Ok(PathBuf::from(std::env::var_os("LOCALAPPDATA").context(tr!(
+        "Brak katalogu danych aplikacji",
+        "Application data directory is unavailable"
+    ))?)
+    .join("LibrusLite")
+    .join("cache"))
 }
 fn account_path(owner: &str) -> Result<PathBuf> {
     let hash = Sha256::digest(owner.trim().as_bytes());
@@ -91,8 +93,10 @@ fn protect(input: &[u8], encrypt: bool) -> Result<Vec<u8>> {
     };
     input.zeroize();
     if ok == 0 {
-        return Err(std::io::Error::last_os_error())
-            .context("Windows nie mógł zabezpieczyć lub odczytać zapisu");
+        return Err(std::io::Error::last_os_error()).context(tr!(
+            "Windows nie mógł zabezpieczyć lub odczytać zapisu",
+            "Windows could not protect or read the snapshot"
+        ));
     }
     let result = if out.cbData == 0 {
         Vec::new()
@@ -109,7 +113,10 @@ fn protect(input: &[u8], encrypt: bool) -> Result<Vec<u8>> {
 }
 static NEXT_FILE: AtomicU64 = AtomicU64::new(0);
 fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
-    let parent = path.parent().context("Brak katalogu zapisu")?;
+    let parent = path.parent().context(tr!(
+        "Brak katalogu zapisu",
+        "Snapshot directory is unavailable"
+    ))?;
     fs::create_dir_all(parent)?;
     let temporary = parent.join(format!(
         ".write-{}-{}-{}.tmp",
@@ -159,9 +166,15 @@ pub fn load(owner: &str) -> Result<Archive> {
     };
     let parsed = serde_json::from_slice::<Archive>(&bytes);
     bytes.zeroize();
-    let archive = parsed.context("Nie udało się odczytać ostatniego zapisu")?;
+    let archive = parsed.context(tr!(
+        "Nie udało się odczytać ostatniego zapisu",
+        "Could not read the last snapshot"
+    ))?;
     if archive.owner != owner {
-        bail!("Zapis należy do innego konta");
+        bail!(tr!(
+            "Zapis należy do innego konta",
+            "This snapshot belongs to another account"
+        ));
     }
     Ok(archive)
 }
