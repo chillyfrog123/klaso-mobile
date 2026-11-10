@@ -1,2 +1,20 @@
 /target/
 *.log
+
+# Local credentials, session exports and private keys
+.env
+.env.*
+!.env.example
+credentials.json
+secrets.json
+cookies*.json
+cookies*.txt
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local account data and diagnostic dumps
+/cache/
+/LibrusLite/
+*.dmp
