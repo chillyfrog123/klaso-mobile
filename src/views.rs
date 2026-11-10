@@ -157,11 +157,12 @@ fn short_date(date: &str) -> String {
     }
     date.chars().take(16).collect::<String>().replace('T', " ")
 }
-pub(crate) fn grade_color(value: &str, accent: Accent) -> egui::Color32 {
-    match value.chars().next().and_then(|c| c.to_digit(10)) {
-        Some(5..=6) => GREEN,
-        Some(1..=2) => RED,
-        _ => accent.color(),
+pub(crate) fn grade_color(value: &str) -> egui::Color32 {
+    match data::grade_band(value) {
+        data::GradeBand::High => GREEN,
+        data::GradeBand::Low => RED,
+        data::GradeBand::Middle => egui::Color32::from_rgb(255, 194, 99),
+        data::GradeBand::Neutral => MUTED,
     }
 }
 
@@ -333,6 +334,28 @@ fn attendance_days<'a>(
     days
 }
 
+fn attendance_codes() -> [&'static str; 5] {
+    [
+        tr!("O", "P"),
+        tr!("N", "A"),
+        tr!("NU", "EA"),
+        tr!("Z", "R"),
+        "?",
+    ]
+}
+fn attendance_code(entry: &Attendance) -> &'static str {
+    let kind = attendance_type(entry);
+    let name = entry
+        .kind
+        .to_lowercase()
+        .replace('ó', "o")
+        .replace(['ź', 'ż'], "z");
+    if kind == 4 && name.contains("spozn") {
+        tr!("S", "L")
+    } else {
+        attendance_codes()[kind]
+    }
+}
 fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &mut ViewState) {
     let present = items.iter().filter(|a| a.present == Some(true)).count();
     let known = items.iter().filter(|a| a.present.is_some()).count();
@@ -356,14 +379,18 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
             ),
         ],
     );
-    let labels: [&str; 5] = [
-        tr!("O · Obecny", "O · Present"),
-        tr!("N · Nieobecny", "N · Absent"),
-        tr!("NU · Nieobecny usprawiedliwiony", "NU · Excused absence"),
-        tr!("Z · Zwolniony", "Z · Released"),
-        tr!("Inne / spóźnienia", "Other / late arrivals"),
+    let codes = attendance_codes();
+    let labels = [
+        format!("{} · {}", codes[0], tr!("Obecny", "Present")),
+        format!("{} · {}", codes[1], tr!("Nieobecny", "Absent")),
+        format!(
+            "{} · {}",
+            codes[2],
+            tr!("Nieobecny usprawiedliwiony", "Excused absence")
+        ),
+        format!("{} · {}", codes[3], tr!("Zwolniony", "Released")),
+        tr!("Inne / spóźnienia", "Other / late arrivals").to_owned(),
     ];
-    const CODES: [&str; 5] = ["O", "N", "NU", "Z", "?"];
     let colors = [
         GREEN,
         RED,
@@ -389,7 +416,7 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
                 });
                 ui.separator();
                 for (i, label) in labels.iter().enumerate() {
-                    ui.checkbox(&mut state.attendance_types[i], *label);
+                    ui.checkbox(&mut state.attendance_types[i], label.as_str());
                 }
             },
         );
@@ -403,7 +430,7 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
     });
     ui.horizontal_wrapped(|ui| {
         for i in 0..4 {
-            ui.colored_label(colors[i], labels[i]);
+            ui.colored_label(colors[i], &labels[i]);
         }
     });
     let days = attendance_days(items, state);
@@ -443,12 +470,7 @@ fn attendance(ui: &mut egui::Ui, items: &[Attendance], accent: Accent, state: &m
                         ui.small(
                             RichText::new(trf!("Lekcja {}", "Lesson {}", a.lesson)).color(MUTED),
                         );
-                        let code = if kind == 4 && a.kind.to_lowercase().contains("spóź") {
-                            "S"
-                        } else {
-                            CODES[kind]
-                        };
-                        theme::badge(ui, code, colors[kind]);
+                        theme::badge(ui, attendance_code(a), colors[kind]);
                     })
                     .response
                     .on_hover_text(trf!(
@@ -808,6 +830,72 @@ pub fn unloaded(ui: &mut egui::Ui, section: Section, accent: Accent, loading: bo
 #[cfg(test)]
 mod layout_tests {
     use super::*;
+    #[test]
+    fn grade_colors_follow_ranges_and_do_not_depend_on_accent() {
+        for value in ["1", "1+", "2-", "2", "2+", "2.74"] {
+            assert_eq!(grade_color(value), RED, "{value}");
+        }
+        for value in ["3-", "3−", "3", "3+", "4-", "4", "4+", "5-", "5−"] {
+            assert_eq!(
+                grade_color(value),
+                egui::Color32::from_rgb(255, 194, 99),
+                "{value}"
+            );
+        }
+        for value in ["5", "5+", "6-", "6−", "6"] {
+            assert_eq!(grade_color(value), GREEN, "{value}");
+            assert!(crate::shine::eligible(value));
+        }
+        for value in ["0", " 0 ", "np", "—"] {
+            assert_eq!(grade_color(value), MUTED, "{value}");
+            assert!(!crate::shine::eligible(value));
+        }
+    }
+    #[test]
+    fn attendance_initials_change_language_without_changing_filters_or_source_data() {
+        let kinds = [
+            "Obecność",
+            "Nieobecność",
+            "Nieobecność usprawiedliwiona",
+            "Zwolnienie",
+            "Spóźnienie",
+            "Nieznany typ",
+        ];
+        let entries: Vec<_> = kinds
+            .into_iter()
+            .map(|kind| Attendance {
+                date: "2026-11-10".into(),
+                lesson: "1".into(),
+                subject: "Demo".into(),
+                kind: kind.into(),
+                present: None,
+            })
+            .collect();
+        let before = serde_json::to_value(&entries).unwrap();
+        for (language, expected) in [
+            (
+                crate::i18n::Language::English,
+                ["P", "A", "EA", "R", "L", "?"],
+            ),
+            (
+                crate::i18n::Language::Polish,
+                ["O", "N", "NU", "Z", "S", "?"],
+            ),
+        ] {
+            crate::i18n::with_language(language, || {
+                assert_eq!(
+                    entries.iter().map(attendance_code).collect::<Vec<_>>(),
+                    expected
+                );
+                let state = ViewState {
+                    attendance_types: [false, true, false, false, false],
+                    ..Default::default()
+                };
+                assert_eq!(attendance_days(&entries, &state).len(), 1);
+            });
+        }
+        assert_eq!(before, serde_json::to_value(&entries).unwrap());
+    }
     #[test]
     fn both_languages_preserve_compact_layouts_and_localize_average_numbers() {
         for language in [

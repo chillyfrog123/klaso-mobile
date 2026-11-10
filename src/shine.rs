@@ -5,7 +5,7 @@ const PERIOD: f64 = 6.0;
 const SWEEP: f64 = 1.2;
 
 pub fn eligible(value: &str) -> bool {
-    matches!(value.trim(), "5+" | "6")
+    crate::data::grade_band(value) == crate::data::GradeBand::High
 }
 
 // A soft diagonal reflection, clipped geometrically to the rounded badge.
@@ -88,10 +88,10 @@ mod tests {
     use super::*;
     #[test]
     fn only_requested_grades_receive_the_effect() {
-        for value in ["5+", "6", " 6 "] {
+        for value in ["5", "5+", "6-", "6−", "6", " 6 "] {
             assert!(eligible(value));
         }
-        for value in ["5", "5-", "6-", "4+", "np", "bdb"] {
+        for value in ["0", "2+", "3-", "5-", "5−", "4+", "np", "bdb"] {
             assert!(!eligible(value));
         }
     }

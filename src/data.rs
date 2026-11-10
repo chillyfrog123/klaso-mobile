@@ -100,6 +100,27 @@ pub fn grade_number(raw: &str, plus: f64, minus: f64, count_zero: bool) -> Optio
         None
     }
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum GradeBand {
+    Neutral,
+    Low,
+    Middle,
+    High,
+}
+
+/// Visual ranges follow the written grade, independently of school-specific
+/// numeric settings used when calculating averages. In particular 3- is the
+/// first amber grade, while 5- stays amber until a full 5 is reached.
+pub fn grade_band(value: &str) -> GradeBand {
+    match grade_number(value, 0.5, 0.25, true) {
+        Some(number) if number >= 5. => GradeBand::High,
+        Some(number) if number >= 2.75 => GradeBand::Middle,
+        Some(number) if number > 0. => GradeBand::Low,
+        _ => GradeBand::Neutral,
+    }
+}
+
 pub fn grade_average<'a>(
     items: impl IntoIterator<Item = &'a Grade>,
     semester: usize,

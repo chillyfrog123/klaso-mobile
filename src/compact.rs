@@ -34,6 +34,71 @@ fn remaining(ui: &egui::Ui) -> f32 {
     (ui.clip_rect().bottom() - ui.cursor().top() - 10.).max(80.)
 }
 
+fn grade_tooltip(ui: &mut egui::Ui, grade: &Grade) {
+    ui.set_width(300.);
+    ui.horizontal_wrapped(|ui| {
+        ui.label(
+            egui::RichText::new(&grade.value)
+                .size(23.)
+                .strong()
+                .color(views::grade_color(&grade.value)),
+        );
+        ui.label(egui::RichText::new(&grade.subject).strong());
+    });
+    ui.separator();
+    egui::Grid::new("grade_tooltip_details")
+        .num_columns(2)
+        .spacing([12., 6.])
+        .show(ui, |ui| {
+            let weight = grade
+                .weight
+                .map(|w| w.to_string())
+                .unwrap_or_else(|| "—".into());
+            for (label, value) in [
+                (tr!("Kategoria", "Category"), grade.category.as_str()),
+                (tr!("Data", "Date"), grade.date.as_str()),
+                (tr!("Nauczyciel", "Teacher"), grade.teacher.as_str()),
+                (tr!("Waga", "Weight"), weight.as_str()),
+                (tr!("Semestr", "Semester"), grade.semester.as_str()),
+                (
+                    tr!("Wliczana do średniej", "Included in average"),
+                    if grade.counts && grade.numeric.is_some() {
+                        tr!("Tak", "Yes")
+                    } else {
+                        tr!("Nie", "No")
+                    },
+                ),
+            ] {
+                ui.label(egui::RichText::new(label).size(12.).color(MUTED));
+                ui.add(egui::Label::new(if value.is_empty() { "—" } else { value }).wrap());
+                ui.end_row();
+            }
+        });
+}
+
+fn grade_badge(ui: &mut egui::Ui, rect: Rect, grade: &Grade, id: egui::Id) -> egui::Response {
+    let color = views::grade_color(&grade.value);
+    ui.painter().rect(
+        rect,
+        4.,
+        color.gamma_multiply(0.14),
+        Stroke::new(1_f32, color.gamma_multiply(0.4)),
+    );
+    if crate::shine::eligible(&grade.value) {
+        let shape = ui.painter().add(egui::Shape::Noop);
+        crate::shine::paint(ui, shape, rect, id.value());
+    }
+    ui.painter().text(
+        rect.center(),
+        egui::Align2::CENTER_CENTER,
+        &grade.value,
+        FontId::proportional(17.),
+        color,
+    );
+    ui.interact(rect, id, Sense::hover())
+        .on_hover_ui(|ui| grade_tooltip(ui, grade))
+}
+
 pub fn grades(
     ui: &mut egui::Ui,
     grouped: &BTreeMap<&str, Vec<&Grade>>,
@@ -101,7 +166,14 @@ pub fn grades(
             Stroke::new(1_f32, Color32::from_rgb(56, 69, 88)),
         );
         let response = ui.interact(rect, ui.id().with(("subject", subject)), Sense::click());
-        response.clone().on_hover_text(trf!(
+        // Only the header has a subject tooltip; a card-wide tooltip used to
+        // mask the individual grade tooltips because it was registered first.
+        ui.interact(
+            line(rect, 0., 30.),
+            ui.id().with(("subject_heading", subject)),
+            Sense::hover(),
+        )
+        .on_hover_text(trf!(
             "{subject}\n{} ocen · kliknij, aby otworzyć szczegóły",
             "{subject}\n{} grades · click to open details",
             values.len()
@@ -144,40 +216,7 @@ pub fn grades(
                 rect.min + Vec2::new(8. + (i % cols) as f32 * 37., 34. + (i / cols) as f32 * 29.),
                 Vec2::new(32., 25.),
             );
-            let color = views::grade_color(&g.value, accent);
-            ui.painter().rect(
-                badge,
-                4.,
-                color.gamma_multiply(0.14),
-                Stroke::new(1_f32, color.gamma_multiply(0.4)),
-            );
-            if crate::shine::eligible(&g.value) {
-                let shape = ui.painter().add(egui::Shape::Noop);
-                crate::shine::paint(
-                    ui,
-                    shape,
-                    badge,
-                    ui.id().with((subject, i, &g.date)).value(),
-                );
-            }
-            ui.painter().text(
-                badge.center(),
-                egui::Align2::CENTER_CENTER,
-                &g.value,
-                FontId::proportional(17.),
-                color,
-            );
-            ui.interact(badge, ui.id().with((subject, i)), Sense::hover())
-                .on_hover_text(trf!(
-                    "{}\n{} · {}\nWaga: {}",
-                    "{}\n{} · {}\nWeight: {}",
-                    g.category,
-                    g.date,
-                    g.teacher,
-                    g.weight
-                        .map(|w| w.to_string())
-                        .unwrap_or_else(|| "—".into())
-                ));
+            grade_badge(ui, badge, g, ui.id().with(("grade", subject, i, &g.date)));
         }
         if visible < values.len() {
             let i = visible;
@@ -213,10 +252,17 @@ pub fn grades(
                         "Arithmetic / weighted average: {}",
                         views::average_pair(values.iter().copied(), state.semester)
                     ));
-                    for g in values {
+                    for (index, g) in values.iter().enumerate() {
                         ui.separator();
                         ui.horizontal_wrapped(|ui| {
-                            ui.colored_label(views::grade_color(&g.value, accent), &g.value);
+                            let (rect, _) =
+                                ui.allocate_exact_size(Vec2::new(34., 25.), Sense::hover());
+                            grade_badge(
+                                ui,
+                                rect,
+                                g,
+                                ui.id().with(("detail_grade", &subject, index)),
+                            );
                             ui.label(&g.category);
                             ui.small(trf!(
                                 "{} · {} · semestr {} · waga {}",
@@ -248,6 +294,7 @@ fn slot(lesson: &Lesson) -> (u32, String) {
         },
     )
 }
+
 pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: NaiveDate) {
     let days = if items.iter().any(|l| {
         NaiveDate::parse_from_str(&l.date, "%Y-%m-%d")
@@ -418,6 +465,110 @@ pub fn timetable(ui: &mut egui::Ui, items: &[Lesson], accent: Accent, week: Naiv
                     l.note
                 ));
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod grade_tests {
+    use super::*;
+
+    #[test]
+    fn hovering_a_grade_inside_a_subject_card_opens_its_own_details() {
+        for language in [
+            crate::i18n::Language::English,
+            crate::i18n::Language::Polish,
+        ] {
+            crate::i18n::with_language(language, || {
+                let grade = Grade {
+                    subject: "Demo subject".into(),
+                    value: "5".into(),
+                    category: "Unique test category".into(),
+                    date: "2026-11-10".into(),
+                    teacher: "Demo teacher".into(),
+                    semester: "1".into(),
+                    numeric: Some(5.),
+                    counts: true,
+                    weight: Some(3.),
+                };
+                let grouped = BTreeMap::from([(grade.subject.as_str(), vec![&grade])]);
+                let mut state = ViewState::default();
+                let ctx = egui::Context::default();
+                crate::theme::apply(&ctx, Accent::Cobalt);
+                ctx.style_mut(|style| {
+                    style.interaction.tooltip_delay = 0.;
+                    style.interaction.show_tooltips_only_when_still = false;
+                });
+                let mut pointer = None;
+                let mut last_text = String::new();
+                for frame in 0..5 {
+                    let output = ctx.run(
+                        egui::RawInput {
+                            screen_rect: Some(Rect::from_min_size(
+                                Pos2::ZERO,
+                                Vec2::new(900., 650.),
+                            )),
+                            time: Some(frame as f64),
+                            events: if frame == 1 {
+                                vec![egui::Event::PointerMoved(pointer.expect("Missing badge"))]
+                            } else {
+                                vec![]
+                            },
+                            ..Default::default()
+                        },
+                        |ctx| {
+                            egui::CentralPanel::default()
+                                .show(ctx, |ui| grades(ui, &grouped, Accent::Cobalt, &mut state));
+                        },
+                    );
+                    if frame == 0 {
+                        pointer = output.shapes.iter().find_map(|shape| {
+                            if let egui::Shape::Rect(rect) = &shape.shape {
+                                ((rect.rect.width() - 32.).abs() < 0.1
+                                    && (rect.rect.height() - 25.).abs() < 0.1)
+                                    .then(|| rect.rect.center())
+                            } else {
+                                None
+                            }
+                        });
+                    }
+                    fn collect(shape: &egui::Shape, text: &mut String) {
+                        match shape {
+                            egui::Shape::Text(value) => {
+                                text.push_str(&value.galley.job.text);
+                                text.push('\n');
+                            }
+                            egui::Shape::Vec(shapes) => {
+                                for shape in shapes {
+                                    collect(shape, text);
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    last_text.clear();
+                    for shape in output.shapes {
+                        collect(&shape.shape, &mut last_text);
+                    }
+                }
+                assert!(
+                    last_text.contains("Unique test category"),
+                    "Grade tooltip must win over the subject tooltip: {last_text}"
+                );
+                for text in [
+                    "Demo teacher",
+                    "2026-11-10",
+                    tr!("Waga", "Weight"),
+                    tr!("Semestr", "Semester"),
+                    tr!("Wliczana do średniej", "Included in average"),
+                ] {
+                    assert!(last_text.contains(text), "Missing tooltip field: {text}");
+                }
+                assert!(
+                    state.grade_details.is_none(),
+                    "Hover must not open the subject window"
+                );
+            });
         }
     }
 }
