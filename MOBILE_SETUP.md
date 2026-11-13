@@ -70,7 +70,7 @@ cargo test --manifest-path rust/Cargo.toml
 
 Browser preview supports the offline demo only; it cannot send login credentials. Playwright requires its Chromium browser (`npx playwright install chromium`), or set `PLAYWRIGHT_EXECUTABLE_PATH` to an already-installed compatible Chromium executable. Browser tests use fictional fixtures and mock failures, never a real account.
 
-`README.md` is intentionally untouched. See `MOBILE_ARCHITECTURE.md` for native storage, session recovery, cache behavior and iOS boundaries. See `MOBILE_VALIDATION.md` for the checks actually completed and remaining device validation.
+See `MOBILE_ARCHITECTURE.md` for native storage, session recovery, cache behavior and iOS boundaries. See `MOBILE_VALIDATION.md` for the checks actually completed and remaining device validation.
 
 
 

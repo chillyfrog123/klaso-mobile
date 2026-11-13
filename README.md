@@ -1,27 +1,50 @@
-# Librus Lite Desktop
-Fully vibecoded - created for the sake of saving time. (don't expect my own code on this acc)
-A small Windows desktop starter written in Rust, with native egui rendering.
+# Klaso Mobile
 
-## Build and run
+A lightweight, unofficial mobile companion for Librus Synergia. Android first, with Material You styling and a React/Capacitor interface backed by Rust code adapted from [Librus Lite](https://github.com/chillyfrog123/librus-lite).
 
-Install stable Rust and either Visual Studio C++ Build Tools (MSVC target), or MinGW-w64 (GNU target). Then:
+## Download
 
-```powershell
-cargo run --release
+Get the **Android ARM64 APK** from [GitHub Releases](https://github.com/chillyfrog123/klaso-mobile/releases). Version **0.1.2** requires Android 7.0 / API 24 or later. The current APK is a debug-signed development build.
+
+Copy the APK to your phone and open it to install. Try **Profile → Explore offline demo** for fictional data, or sign in with your Synergia account.
+
+## Features
+
+- Timetable with lesson details, substitutions and cancellations.
+- Academic grades and averages, with separate behavior grades.
+- Attendance grouped by day, with horizontal lesson entries and filters.
+- Paginated inbox, message reader and school notices.
+- Multiple encrypted remembered accounts and separate cached datasets.
+- English / Polski, System / Light / Dark themes and four accent colors.
+- Material You on Android; Liquid Glass in the iPhone preview.
+
+A native iOS build is not yet available. The Swift storage/bridge adapter and device validation remain future work.
+
+## Privacy
+
+No analytics or telemetry. Credentials go directly to Librus. Remembered credentials and snapshots use Android Keystore-backed encryption. Failed refreshes preserve cached data and its last successful refresh time.
+
+CAPTCHA and additional verification must be completed on the official Librus website. Opening a message may mark it read remotely. School content stays in its original language.
+
+## Development
+
+The mobile project is in `mobile/`. It reuses the Rust authentication, API models and calculations in `src/`. Original desktop sources remain for backend reuse; the primary deliverable here is the mobile app.
+
+Browser preview with fictional data:
+
+```sh
+cd mobile
+npm ci
+npm run dev
 ```
 
-Executable: `target/release/librus-lite.exe`. `cargo test --release` checks login redirects/cookies, required-action screens, Polish text decoding, ISO weeks and timetable normalization. `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings` check code quality.
+Add `?platform=ios` to preview the iPhone appearance. Live sign-in uses the Android native bridge.
 
-You can also run `./run.ps1` in PowerShell; it builds the optimized executable and starts the app.
+- [Android setup, builds and installation](MOBILE_SETUP.md)
+- [Architecture and encrypted storage](MOBILE_ARCHITECTURE.md)
+- [Validation and remaining device checks](MOBILE_VALIDATION.md)
+- [Version 0.1.2 changes](CHANGELOG_0.1.2.md)
 
-`target/release/librus-lite.exe --demo` opens a clearly labeled offline preview with fictional data. Add `--compact` to start with a 900 × 640 client area. The preview never reads saved credentials, logs in, or writes theme preferences. The ignored `live_account_read_only` integration test requires an existing remembered account in Windows Credential Manager and reads only lists, without printing personal content. It is not run during normal tests.
+Live login, school-specific room values and device behavior still require physical-device validation. Never commit credentials, private school data or machine-local build configuration.
 
-## Authentication
-
-Starts at `/loguj/portalRodzina`, requests the state-bearing authorization URL without following its next redirect, posts the credentials as a form, then follows the JSON `goTo` response one redirect at a time. Requires a Synergia `oauth_token` cookie applicable to the API path before verifying `/Auth/TokenInfo/`. No credentials are sent to a third-party backend. An active session retains credentials in memory for recovery, including when remembering is disabled; its password buffer is zeroed when that session is dropped. HTTP and GUI dependencies can make temporary copies.
-
-Login failures distinguish a missing session cookie from a verification endpoint rejection. Redirect diagnostics include only HTTP statuses and paths, without query strings or cookie values. Regression tests use a local mock server to check the bootstrap stops before form submission and that intermediate redirect cookies reach subsequent requests.
-
-CAPTCHA and additional verification are reported, not automated. HTTP 200 login pages can contain structured `requiredActions`; password-change and leaked-password notices are recognized and direct you to finish the action on the official website. The app does not change passwords or dismiss these notices. If a new data request encounters an expired session, recovery tries `/refreshToken` and verifies it, otherwise reauthenticates, then repeats the original request once. Recovery is serialized across simultaneous callers, recognizes insufficient scopes separately and reinitializes the messages session. There is no keep-alive timer or background refresh. Failed recovery leaves the last successful data visible.
-
-The login flow is based on observed Librus behavior and independent protocol analysis; it is an unofficial integration and can change. Version 0.3.0 was checked against the remembered account for grades, attendance, message lists, notices, timetable, session renewal and a request after renewal. Private content is not printed by the integration test. Do not commit credentials or student data.
+Klaso Mobile is independent and unofficial, and is not affiliated with Librus.
