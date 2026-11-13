@@ -1,0 +1,966 @@
+{
+  "Attendance": {
+    "Attendance": [
+      {
+        "date": "2026-11-09",
+        "kind": "Nieobecność usprawiedliwiona",
+        "lesson": "1",
+        "present": false,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-09",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-09",
+        "kind": "Obecność",
+        "lesson": "3",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-09",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-09",
+        "kind": "Obecność",
+        "lesson": "5",
+        "present": true,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-09",
+        "kind": "Obecność",
+        "lesson": "6",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-08",
+        "kind": "Obecność",
+        "lesson": "1",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-08",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-08",
+        "kind": "Nieobecność usprawiedliwiona",
+        "lesson": "3",
+        "present": false,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-08",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-08",
+        "kind": "Obecność",
+        "lesson": "5",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-08",
+        "kind": "Obecność",
+        "lesson": "6",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-07",
+        "kind": "Obecność",
+        "lesson": "1",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-07",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-07",
+        "kind": "Obecność",
+        "lesson": "3",
+        "present": true,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-07",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-07",
+        "kind": "Nieobecność usprawiedliwiona",
+        "lesson": "5",
+        "present": false,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-07",
+        "kind": "Obecność",
+        "lesson": "6",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-06",
+        "kind": "Obecność",
+        "lesson": "1",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-06",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-06",
+        "kind": "Obecność",
+        "lesson": "3",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-06",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-06",
+        "kind": "Obecność",
+        "lesson": "5",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-06",
+        "kind": "Obecność",
+        "lesson": "6",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-05",
+        "kind": "Nieobecność usprawiedliwiona",
+        "lesson": "1",
+        "present": false,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-05",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-05",
+        "kind": "Obecność",
+        "lesson": "3",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-05",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-05",
+        "kind": "Obecność",
+        "lesson": "5",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-05",
+        "kind": "Obecność",
+        "lesson": "6",
+        "present": true,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-04",
+        "kind": "Obecność",
+        "lesson": "1",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-04",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-04",
+        "kind": "Nieobecność usprawiedliwiona",
+        "lesson": "3",
+        "present": false,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-04",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-04",
+        "kind": "Obecność",
+        "lesson": "5",
+        "present": true,
+        "subject": "Historia"
+      },
+      {
+        "date": "2026-11-04",
+        "kind": "Obecność",
+        "lesson": "6",
+        "present": true,
+        "subject": "Matematyka"
+      },
+      {
+        "date": "2026-11-03",
+        "kind": "Obecność",
+        "lesson": "1",
+        "present": true,
+        "subject": "Język polski"
+      },
+      {
+        "date": "2026-11-03",
+        "kind": "Obecność",
+        "lesson": "2",
+        "present": true,
+        "subject": "Język angielski"
+      },
+      {
+        "date": "2026-11-03",
+        "kind": "Obecność",
+        "lesson": "3",
+        "present": true,
+        "subject": "Biologia"
+      },
+      {
+        "date": "2026-11-03",
+        "kind": "Obecność",
+        "lesson": "4",
+        "present": true,
+        "subject": "Historia"
+      }
+    ]
+  },
+  "Grades": {
+    "Grades": {
+      "behaviour": [
+        {
+          "date": "2026-11-09",
+          "description": "Bardzo dobre",
+          "semester": "1",
+          "value": "bdb"
+        }
+      ],
+      "behaviour_error": null,
+      "items": [
+        {
+          "category": "Sprawdzian",
+          "counts": true,
+          "date": "2026-11-09",
+          "numeric": 5.0,
+          "semester": "1",
+          "subject": "Matematyka",
+          "teacher": "Anna Przykładowa",
+          "value": "5",
+          "weight": 1.0
+        },
+        {
+          "category": "Kartkówka",
+          "counts": true,
+          "date": "2026-11-08",
+          "numeric": 4.5,
+          "semester": "1",
+          "subject": "Matematyka",
+          "teacher": "Anna Przykładowa",
+          "value": "4+",
+          "weight": 2.0
+        },
+        {
+          "category": "Sprawdzian",
+          "counts": true,
+          "date": "2026-11-08",
+          "numeric": 5.0,
+          "semester": "1",
+          "subject": "Język polski",
+          "teacher": "Anna Przykładowa",
+          "value": "5",
+          "weight": 1.0
+        },
+        {
+          "category": "Aktywność",
+          "counts": true,
+          "date": "2026-11-07",
+          "numeric": 4.75,
+          "semester": "1",
+          "subject": "Matematyka",
+          "teacher": "Anna Przykładowa",
+          "value": "5−",
+          "weight": 3.0
+        },
+        {
+          "category": "Kartkówka",
+          "counts": true,
+          "date": "2026-11-07",
+          "numeric": 4.5,
+          "semester": "1",
+          "subject": "Język polski",
+          "teacher": "Anna Przykładowa",
+          "value": "4+",
+          "weight": 2.0
+        },
+        {
+          "category": "Sprawdzian",
+          "counts": true,
+          "date": "2026-11-07",
+          "numeric": 5.0,
+          "semester": "1",
+          "subject": "Język angielski",
+          "teacher": "Anna Przykładowa",
+          "value": "5",
+          "weight": 1.0
+        },
+        {
+          "category": "Projekt",
+          "counts": true,
+          "date": "2026-11-06",
+          "numeric": 6.0,
+          "semester": "1",
+          "subject": "Matematyka",
+          "teacher": "Anna Przykładowa",
+          "value": "6",
+          "weight": 1.0
+        },
+        {
+          "category": "Aktywność",
+          "counts": true,
+          "date": "2026-11-06",
+          "numeric": 4.75,
+          "semester": "1",
+          "subject": "Język polski",
+          "teacher": "Anna Przykładowa",
+          "value": "5−",
+          "weight": 3.0
+        },
+        {
+          "category": "Kartkówka",
+          "counts": true,
+          "date": "2026-11-06",
+          "numeric": 4.5,
+          "semester": "1",
+          "subject": "Język angielski",
+          "teacher": "Anna Przykładowa",
+          "value": "4+",
+          "weight": 2.0
+        },
+        {
+          "category": "Sprawdzian",
+          "counts": true,
+          "date": "2026-11-06",
+          "numeric": 5.0,
+          "semester": "1",
+          "subject": "Biologia",
+          "teacher": "Anna Przykładowa",
+          "value": "5",
+          "weight": 1.0
+        },
+        {
+          "category": "Projekt",
+          "counts": true,
+          "date": "2026-11-05",
+          "numeric": 6.0,
+          "semester": "1",
+          "subject": "Język polski",
+          "teacher": "Anna Przykładowa",
+          "value": "6",
+          "weight": 1.0
+        },
+        {
+          "category": "Aktywność",
+          "counts": true,
+          "date": "2026-11-05",
+          "numeric": 4.75,
+          "semester": "1",
+          "subject": "Język angielski",
+          "teacher": "Anna Przykładowa",
+          "value": "5−",
+          "weight": 3.0
+        },
+        {
+          "category": "Kartkówka",
+          "counts": true,
+          "date": "2026-11-05",
+          "numeric": 4.5,
+          "semester": "1",
+          "subject": "Biologia",
+          "teacher": "Anna Przykładowa",
+          "value": "4+",
+          "weight": 2.0
+        },
+        {
+          "category": "Sprawdzian",
+          "counts": true,
+          "date": "2026-11-05",
+          "numeric": 5.0,
+          "semester": "1",
+          "subject": "Historia",
+          "teacher": "Anna Przykładowa",
+          "value": "5",
+          "weight": 1.0
+        },
+        {
+          "category": "Projekt",
+          "counts": true,
+          "date": "2026-11-04",
+          "numeric": 6.0,
+          "semester": "1",
+          "subject": "Język angielski",
+          "teacher": "Anna Przykładowa",
+          "value": "6",
+          "weight": 1.0
+        },
+        {
+          "category": "Aktywność",
+          "counts": true,
+          "date": "2026-11-04",
+          "numeric": 4.75,
+          "semester": "1",
+          "subject": "Biologia",
+          "teacher": "Anna Przykładowa",
+          "value": "5−",
+          "weight": 3.0
+        },
+        {
+          "category": "Kartkówka",
+          "counts": true,
+          "date": "2026-11-04",
+          "numeric": 4.5,
+          "semester": "1",
+          "subject": "Historia",
+          "teacher": "Anna Przykładowa",
+          "value": "4+",
+          "weight": 2.0
+        },
+        {
+          "category": "Projekt",
+          "counts": true,
+          "date": "2026-11-03",
+          "numeric": 6.0,
+          "semester": "1",
+          "subject": "Biologia",
+          "teacher": "Anna Przykładowa",
+          "value": "6",
+          "weight": 1.0
+        },
+        {
+          "category": "Aktywność",
+          "counts": true,
+          "date": "2026-11-03",
+          "numeric": 4.75,
+          "semester": "1",
+          "subject": "Historia",
+          "teacher": "Anna Przykładowa",
+          "value": "5−",
+          "weight": 3.0
+        },
+        {
+          "category": "Projekt",
+          "counts": true,
+          "date": "2026-11-02",
+          "numeric": 6.0,
+          "semester": "1",
+          "subject": "Historia",
+          "teacher": "Anna Przykładowa",
+          "value": "6",
+          "weight": 1.0
+        }
+      ],
+      "summaries": [
+        {
+          "overall": [5.0625, 4.892857142857143],
+          "subjects": {
+            "Biologia": [5.0625, 4.892857142857143],
+            "Historia": [5.0625, 4.892857142857143],
+            "Język angielski": [5.0625, 4.892857142857143],
+            "Język polski": [5.0625, 4.892857142857143],
+            "Matematyka": [5.0625, 4.892857142857143]
+          }
+        },
+        {
+          "overall": [5.0625, 4.892857142857143],
+          "subjects": {
+            "Biologia": [5.0625, 4.892857142857143],
+            "Historia": [5.0625, 4.892857142857143],
+            "Język angielski": [5.0625, 4.892857142857143],
+            "Język polski": [5.0625, 4.892857142857143],
+            "Matematyka": [5.0625, 4.892857142857143]
+          }
+        },
+        {
+          "overall": [null, null],
+          "subjects": {
+            "Biologia": [null, null],
+            "Historia": [null, null],
+            "Język angielski": [null, null],
+            "Język polski": [null, null],
+            "Matematyka": [null, null]
+          }
+        }
+      ]
+    }
+  },
+  "Messages": {
+    "Messages": {
+      "items": [
+        {
+          "attachments": [],
+          "content": "Dzień dobry,\n\nprzypominam o naszej wycieczce klasowej. Spotykamy się przed szkołą o godzinie 8:00. Proszę zabrać wygodne buty, wodę i dobry humor.\n\nDokładny plan wyjazdu omówimy na godzinie wychowawczej.\n\nPozdrawiam serdecznie,\nAnna Przykładowa",
+          "date": "2026-11-09 14:30",
+          "has_files": false,
+          "id": "demo-message-1",
+          "sender": "Anna Przykładowa",
+          "title": "Wycieczka klasowa — informacje organizacyjne",
+          "unread": true
+        },
+        {
+          "attachments": [],
+          "content": "Przypominam o terminie oddania projektu. Tematy znajdziecie w materiałach z lekcji.",
+          "date": "2026-11-09 09:15",
+          "has_files": false,
+          "id": "demo-message-2",
+          "sender": "Jan Przykładowy",
+          "title": "Przypomnienie o projekcie z biologii",
+          "unread": false
+        }
+      ],
+      "total": 2
+    }
+  },
+  "Notices": {
+    "Notices": [
+      {
+        "author": "Sekretariat szkoły",
+        "content": "Zapraszamy uczniów i rodziców na dzień otwarty.\n\nW programie warsztaty przedmiotowe, spotkania z wychowawcami i prezentacje prac uczniów. Szczegółowy harmonogram będzie dostępny przy wejściu.\n\nDo zobaczenia!",
+        "date": "2026-11-09",
+        "id": "demo-notice-1",
+        "title": "Dzień otwarty — spotkajmy się w szkole",
+        "unread": true,
+        "until": "2026-11-16"
+      },
+      {
+        "author": "Biblioteka szkolna",
+        "content": "Nowości literackie i książki popularnonaukowe czekają na czytelników. Zapraszamy w godzinach pracy biblioteki.",
+        "date": "2026-11-07",
+        "id": "demo-notice-2",
+        "title": "Biblioteka: nowe książki już na półkach",
+        "unread": false,
+        "until": ""
+      }
+    ]
+  },
+  "Timetable": {
+    "Timetable": [
+      {
+        "canceled": false,
+        "date": "2026-11-09",
+        "from": "08:00",
+        "note": "",
+        "number": "1",
+        "room": "101",
+        "subject": "Matematyka",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "08:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-09",
+        "from": "09:00",
+        "note": "",
+        "number": "2",
+        "room": "102",
+        "subject": "Język polski",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "09:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-09",
+        "from": "10:00",
+        "note": "",
+        "number": "3",
+        "room": "103",
+        "subject": "Język angielski",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "10:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-09",
+        "from": "11:00",
+        "note": "",
+        "number": "4",
+        "room": "104",
+        "subject": "Biologia",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "11:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-09",
+        "from": "12:00",
+        "note": "",
+        "number": "5",
+        "room": "105",
+        "subject": "Historia",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "12:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-09",
+        "from": "13:00",
+        "note": "",
+        "number": "6",
+        "room": "106",
+        "subject": "Matematyka",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "13:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-10",
+        "from": "08:00",
+        "note": "",
+        "number": "1",
+        "room": "101",
+        "subject": "Język polski",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "08:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-10",
+        "from": "09:00",
+        "note": "",
+        "number": "2",
+        "room": "102",
+        "subject": "Język angielski",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "09:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-10",
+        "from": "10:00",
+        "note": "Zmiana sali na 103",
+        "number": "3",
+        "room": "103",
+        "subject": "Biologia",
+        "substitution": true,
+        "teacher": "Anna Przykładowa",
+        "to": "10:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-10",
+        "from": "11:00",
+        "note": "",
+        "number": "4",
+        "room": "104",
+        "subject": "Historia",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "11:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-10",
+        "from": "12:00",
+        "note": "",
+        "number": "5",
+        "room": "105",
+        "subject": "Matematyka",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "12:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-10",
+        "from": "13:00",
+        "note": "",
+        "number": "6",
+        "room": "106",
+        "subject": "Język polski",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "13:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-11",
+        "from": "08:00",
+        "note": "",
+        "number": "1",
+        "room": "101",
+        "subject": "Język angielski",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "08:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-11",
+        "from": "09:00",
+        "note": "",
+        "number": "2",
+        "room": "102",
+        "subject": "Biologia",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "09:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-11",
+        "from": "10:00",
+        "note": "",
+        "number": "3",
+        "room": "103",
+        "subject": "Historia",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "10:45"
+      },
+      {
+        "canceled": true,
+        "date": "2026-11-11",
+        "from": "11:00",
+        "note": "",
+        "number": "4",
+        "room": "104",
+        "subject": "Matematyka",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "11:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-11",
+        "from": "12:00",
+        "note": "",
+        "number": "5",
+        "room": "105",
+        "subject": "Język polski",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "12:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-11",
+        "from": "13:00",
+        "note": "",
+        "number": "6",
+        "room": "106",
+        "subject": "Język angielski",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "13:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-12",
+        "from": "08:00",
+        "note": "",
+        "number": "1",
+        "room": "101",
+        "subject": "Biologia",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "08:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-12",
+        "from": "09:00",
+        "note": "",
+        "number": "2",
+        "room": "102",
+        "subject": "Historia",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "09:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-12",
+        "from": "10:00",
+        "note": "",
+        "number": "3",
+        "room": "103",
+        "subject": "Matematyka",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "10:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-12",
+        "from": "11:00",
+        "note": "",
+        "number": "4",
+        "room": "104",
+        "subject": "Język polski",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "11:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-12",
+        "from": "12:00",
+        "note": "",
+        "number": "5",
+        "room": "105",
+        "subject": "Język angielski",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "12:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-12",
+        "from": "13:00",
+        "note": "",
+        "number": "6",
+        "room": "106",
+        "subject": "Biologia",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "13:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-13",
+        "from": "08:00",
+        "note": "",
+        "number": "1",
+        "room": "101",
+        "subject": "Historia",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "08:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-13",
+        "from": "09:00",
+        "note": "",
+        "number": "2",
+        "room": "102",
+        "subject": "Matematyka",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "09:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-13",
+        "from": "10:00",
+        "note": "",
+        "number": "3",
+        "room": "103",
+        "subject": "Język polski",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "10:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-13",
+        "from": "11:00",
+        "note": "",
+        "number": "4",
+        "room": "104",
+        "subject": "Język angielski",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "11:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-13",
+        "from": "12:00",
+        "note": "",
+        "number": "5",
+        "room": "105",
+        "subject": "Biologia",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
+        "to": "12:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-13",
+        "from": "13:00",
+        "note": "",
+        "number": "6",
+        "room": "106",
+        "subject": "Historia",
+        "substitution": false,
+        "teacher": "Jan Przykładowy",
+        "to": "13:45"
+      }
+    ]
+  }
+}

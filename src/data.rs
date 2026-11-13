@@ -384,6 +384,27 @@ pub fn message(value: &Value, full: bool) -> Message {
     }
 }
 
+fn classroom(lesson: &Value, rooms: &HashMap<String, String>) -> String {
+    for key in ["Classroom", "ClassRoom", "Room"] {
+        let value = &lesson[key];
+        for field in ["Symbol", "Name", "Number"] {
+            let name = text(value, field);
+            if !name.trim().is_empty() {
+                return name;
+            }
+        }
+        let raw = if value.is_object() {
+            text(value, "Id")
+        } else {
+            scalar(value)
+        };
+        if !raw.is_empty() {
+            return rooms.get(&raw).cloned().unwrap_or(raw);
+        }
+    }
+    "—".to_string()
+}
+
 pub fn timetable(
     value: &Value,
     subjects: &HashMap<String, String>,
@@ -433,7 +454,7 @@ pub fn timetable(
                 },
                 subject: resolve(&value["Subject"], subjects, tr!("Przedmiot", "Subject")),
                 teacher: resolve(&value["Teacher"], teachers, tr!("Nauczyciel", "Teacher")),
-                room: resolve(&value["Classroom"], rooms, tr!("Sala", "Room")),
+                room: classroom(value, rooms),
                 from: text(value, "HourFrom"),
                 to: text(value, "HourTo"),
                 canceled: flag(&value["IsCanceled"]),
@@ -471,6 +492,17 @@ mod tests {
             counts: true,
             weight,
         }
+    }
+    #[test]
+    fn room_symbols_ids_and_scalar_rooms_are_preserved() {
+        let rooms = HashMap::from([("12".into(), "B-204".into())]);
+        assert_eq!(
+            classroom(&json!({"Classroom":{"Symbol":"A-103","Id":12}}), &rooms),
+            "A-103"
+        );
+        assert_eq!(classroom(&json!({"Classroom":{"Id":12}}), &rooms), "B-204");
+        assert_eq!(classroom(&json!({"Classroom":"Gym"}), &rooms), "Gym");
+        assert_eq!(classroom(&json!({}), &rooms), "—");
     }
     #[test]
     fn arithmetic_and_weighted_averages_respect_flags_semesters_and_unknown_weights() {

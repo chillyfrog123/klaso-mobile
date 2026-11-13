@@ -1,0 +1,280 @@
+/* Android: Material You / Material 3 tonal surfaces. iOS retains the glass
+   system in styles.css. Palette seeds are the four explicit saved accents. */
+:root[data-design="material"] {
+  font-family: Roboto, "Segoe UI", system-ui, sans-serif;
+  --md-surface: #f8f9ff;
+  --md-container: #edf0f8;
+  --md-container-high: #e5eaf5;
+  --md-primary-container: #dce6ff;
+  --md-on-primary-container: #123362;
+  --md-outline: #747b8b;
+  --md-surface: color-mix(in srgb, var(--accent) 3%, #fff);
+  --md-container: color-mix(in srgb, var(--accent) 7%, #fff);
+  --md-container-high: color-mix(in srgb, var(--accent) 11%, #fff);
+  --md-primary-container: color-mix(in srgb, var(--accent) 17%, #fff);
+  --md-on-primary-container: color-mix(in srgb, var(--accent) 40%, #18202b);
+  --muted: #515969;
+  --line: #dce0e9;
+  color: #1c2431;
+  background: var(--md-surface);
+}
+:root[data-design="material"] body {
+  background: var(--md-surface);
+}
+:root[data-design="material"] h1 {
+  font-size: 32px;
+  font-weight: 450;
+  letter-spacing: 0;
+}
+:root[data-design="material"] h2 {
+  font-weight: 500;
+  letter-spacing: 0;
+}
+:root[data-design="material"] h3 {
+  font-weight: 550;
+}
+:root[data-design="material"] button {
+  min-height: 48px;
+}
+:root[data-design="material"] button:active:not(:disabled) {
+  transform: none;
+  filter: brightness(0.93);
+}
+:root[data-design="material"] .glass {
+  background: var(--md-container);
+  border: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+:root[data-design="material"] .topbar {
+  background: var(--md-surface);
+  border-radius: 0;
+}
+:root[data-design="material"] .brand {
+  font-weight: 550;
+  letter-spacing: -0.6px;
+}
+:root[data-design="material"] .brand-mark {
+  border-radius: 12px;
+  background: var(--md-primary-container);
+}
+:root[data-design="material"] .profile-button {
+  background: var(--md-container-high);
+  border: 0;
+}
+:root[data-design="material"] .refresh {
+  width: 52px;
+  height: 52px;
+  border-radius: 17px;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+:root[data-design="material"] .eyebrow {
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+:root[data-design="material"] .card {
+  border-radius: 24px;
+  border: 0;
+  box-shadow: none;
+  background: #fff;
+}
+:root[data-design="material"] .summary-card {
+  border: 0;
+  border-radius: 28px;
+  background: var(--md-primary-container);
+  padding: 24px;
+}
+:root[data-design="material"] .summary-card h2 {
+  color: var(--md-on-primary-container);
+  font-weight: 450;
+  letter-spacing: -0.8px;
+}
+:root[data-design="material"] .summary-card .eyebrow,
+:root[data-design="material"] .summary-card p,
+:root[data-design="material"] .summary-footer {
+  color: var(--md-on-primary-container);
+}
+:root[data-design="material"] .summary-icon {
+  background: transparent;
+  border: 0;
+  color: var(--md-on-primary-container);
+}
+:root[data-design="material"] .summary-footer {
+  border-top-color: rgba(var(--accent-rgb), 0.18);
+}
+:root[data-design="material"] .subject-icon {
+  background: var(--md-container);
+  color: var(--md-on-primary-container);
+}
+:root[data-design="material"] .grade {
+  border: 0;
+  border-radius: 12px;
+  min-height: 48px;
+  min-width: 48px;
+}
+:root[data-design="material"] .grade-row {
+  gap: 8px;
+}
+:root[data-design="material"] .bottom-nav {
+  border-radius: 28px;
+  background: var(--md-container-high);
+  padding: 8px 4px;
+  box-shadow: 0 3px 8px #17263d17;
+}
+:root[data-design="material"] .bottom-nav button {
+  gap: 4px;
+  padding: 3px 0 5px;
+  color: var(--muted);
+}
+:root[data-design="material"] .bottom-nav button > span {
+  width: min(64px, 95%);
+  height: 32px;
+  border-radius: 20px;
+}
+:root[data-design="material"] .bottom-nav .active {
+  color: var(--md-on-primary-container);
+}
+:root[data-design="material"] .bottom-nav .active > span {
+  background: var(--md-primary-container);
+}
+:root[data-design="material"] .bottom-nav small {
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+:root[data-design="material"] .bottom-nav .active small {
+  font-weight: 750;
+}
+:root[data-design="material"] .primary,
+:root[data-design="material"] .secondary,
+:root[data-design="material"] .danger {
+  border-radius: 999px;
+}
+:root[data-design="material"] .secondary {
+  border: 1px solid var(--md-outline);
+  background: transparent;
+}
+:root[data-design="material"] input:not([type="checkbox"]),
+:root[data-design="material"] select {
+  background: var(--md-container);
+  border: 1px solid var(--md-outline);
+  border-radius: 8px;
+}
+:root[data-design="material"] .setting-row select {
+  border: 0;
+  border-radius: 12px;
+}
+:root[data-design="material"] .section-toolbar select {
+  border: 0;
+  border-radius: 12px;
+  background: var(--md-container);
+}
+:root[data-design="material"] .week-toolbar {
+  border-radius: 24px;
+}
+:root[data-design="material"] .day-picker .active {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  box-shadow: none;
+}
+:root[data-design="material"] .day-picker .active .dot {
+  background: var(--md-on-primary-container);
+}
+:root[data-design="material"] .day-picker button {
+  border-radius: 24px;
+}
+:root[data-design="material"] .lesson-card {
+  border: 0;
+  border-radius: 24px;
+}
+:root[data-design="material"] .day-off {
+  border-radius: 24px;
+  border: 0;
+}
+:root[data-design="material"] .avatar {
+  background: var(--md-primary-container);
+  border: 0;
+  border-radius: 50%;
+}
+:root[data-design="material"] .filter-chips button {
+  border-radius: 8px;
+  background: transparent;
+  border-color: var(--md-outline);
+}
+:root[data-design="material"] .filter-chips button.active {
+  background: var(--md-primary-container);
+  border-color: transparent;
+  color: var(--md-on-primary-container);
+}
+:root[data-design="material"] .segmented {
+  background: transparent;
+  border: 1px solid var(--md-outline);
+  border-radius: 999px;
+  padding: 0;
+  overflow: hidden;
+}
+:root[data-design="material"] .segmented button {
+  border-radius: 0;
+}
+:root[data-design="material"] .segmented button + button {
+  border-left: 1px solid var(--md-outline);
+}
+:root[data-design="material"] .segmented button.active {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  box-shadow: none;
+}
+:root[data-design="material"] .search-box {
+  border: 0;
+  border-radius: 28px;
+  background: var(--md-container-high);
+  min-height: 56px;
+}
+:root[data-design="material"] .search-box input {
+  background: transparent;
+  border: 0;
+}
+:root[data-design="material"] .mail-card {
+  border: 2px solid transparent;
+}
+:root[data-design="material"] .mail-card.unread {
+  background: var(--md-container);
+}
+:root[data-design="material"] .mail-card.selected {
+  background: var(--md-primary-container);
+  border-color: var(--accent);
+}
+:root[data-design="material"] .mail-card.selected .mail-meta {
+  font-weight: 650;
+}
+:root[data-design="material"] .pagination {
+  border-radius: 28px;
+}
+:root[data-design="material"] .detail-sheet {
+  border: 0;
+  border-radius: 28px 28px 0 0;
+  background: var(--md-surface);
+  box-shadow: none;
+}
+:root[data-design="material"] .detail-sheet::backdrop {
+  background: #1b1b1f66;
+  backdrop-filter: none;
+}
+:root[data-design="material"] .demo-banner {
+  background: var(--md-container);
+  border-style: solid;
+  border-color: var(--line);
+  border-radius: 16px;
+}
+:root[data-design="material"] .error {
+  border: 0;
+  border-radius: 20px;
+  background: #ffdadf;
+  color: #7d2135;
+}
+@media (min-width: 700px) {
+  :root[data-design="material"] .detail-sheet {
+    border-radius: 28px;
+  }
+}

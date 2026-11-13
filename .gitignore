@@ -18,3 +18,20 @@ cookies*.txt
 /cache/
 /LibrusLite/
 *.dmp
+# Mobile generated outputs and machine-local configuration
+/mobile/node_modules/
+/mobile/dist/
+/mobile/test-results/
+/mobile/playwright-report/
+/mobile/rust/target/
+/mobile/android/.gradle/
+/mobile/android/**/build/
+/mobile/android/local.properties
+/mobile/android/app/src/main/jniLibs/
+/mobile/android/app/src/main/assets/public/
+/mobile/android/app/src/main/assets/capacitor.config.json
+/mobile/android/app/src/main/assets/capacitor.plugins.json
+/mobile/artifacts/
+/mobile/*.tsbuildinfo
+*.jks
+*.keystore

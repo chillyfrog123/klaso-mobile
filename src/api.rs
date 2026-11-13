@@ -550,7 +550,11 @@ impl Session {
                                 tr!("Przedmiot", "Subject"),
                             ),
                             value: data::text(v, "Grade"),
-                            category: data::resolve(&v["Category"], &categories, "Kategoria"),
+                            category: data::resolve(
+                                &v["Category"],
+                                &categories,
+                                tr!("Kategoria", "Category"),
+                            ),
                             date: data::text(v, "Date"),
                             teacher: data::resolve(
                                 &v["AddedBy"],
@@ -685,7 +689,21 @@ impl Session {
                 let value = self.get(&format!("Timetables?weekStart={week}"))?;
                 let subjects = data::names(&self.lookup("Subjects", "Subjects"));
                 let teachers = data::names(&self.lookup("Users", "Users"));
-                let rooms = data::names(&self.lookup("Classrooms", "Classrooms"));
+                let records = self.lookup("Classrooms", "Classrooms");
+                let rooms = records
+                    .iter()
+                    .map(|r| {
+                        let symbol = data::text(r, "Symbol");
+                        (
+                            data::text(r, "Id"),
+                            if symbol.is_empty() {
+                                data::text(r, "Name")
+                            } else {
+                                symbol
+                            },
+                        )
+                    })
+                    .collect();
                 Ok(Payload::Timetable(data::timetable(
                     &value, &subjects, &teachers, &rooms,
                 )?))

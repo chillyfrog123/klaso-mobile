@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Klaso Mobile</string>
+    <string name="title_activity_main">Klaso Mobile</string>
+    <string name="package_name">pl.libruslite.mobile</string>
+    <string name="custom_url_scheme">pl.libruslite.mobile</string>
+</resources>
