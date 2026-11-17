@@ -1,3 +1,19 @@
+# Compact UI release validation — 17 November 2026
+
+Release v0.1.4 uses Android version code 5. APK: `mobile/artifacts/klaso-mobile-0.1.4-arm64-debug.apk` (7,619,309 bytes).
+
+- TypeScript/Vite production build, Capacitor Android asset sync, and the ARM64 Rust release build passed.
+- 26 frontend unit tests and all 13 Playwright browser scenarios passed. These cover grades/details, translated preferences, timetable substitutions/cancellations, attendance filtering, inbox/notices, cached data/account boundaries and mocked updater flows.
+- 160 layout checks passed across 320, 390, 700 and 1024 px widths, Android/iPhone styles, English/Polish and light/dark themes, plus tablet week-view checks. No page overflow or button/input height below 44 px was found. Selected narrow-phone and tablet screenshots were visually reviewed. Top/bottom safe-area checks passed for all five screens.
+- 23 mobile Rust tests passed; the one real-account integration test remained ignored. Rust Clippy with warnings denied and formatting checks passed.
+- All three Android/JUnit update-policy tests passed in a forced fresh run. Android lint passed with 0 errors and 5 existing warnings. The device-test APK compiled successfully.
+- APK v2 signature verification, 16 KB ZIP alignment and ARM64 ELF load alignment checks passed. Package `pl.libruslite.mobile`, minimum API 24, target API 36, version name 0.1.4 and version code 5 were verified in the APK.
+- The v0.1.4 signing certificate matches the published v0.1.3 APK; the older local APK hash was matched against its GitHub asset digest.
+- Source formatting and Git whitespace checks passed. Tests used fictional fixtures, local HTTP fixtures or mocked native bridges; no real school account was used.
+- No Android device was connected. Device instrumentation tests, live-account login, native installer permission flows and an actual in-place upgrade remain unverified.
+
+APK SHA-256: `25fee220754629605c0d21793ec86ad9987a961d9c1ea6ae4133b9a50f95c4fe`.
+
 # App updater validation — 17 November 2026
 
 Release v0.1.3 includes the app updater. APK: `mobile/artifacts/klaso-mobile-0.1.3-arm64-debug.apk`, version 0.1.3 / version code 4.

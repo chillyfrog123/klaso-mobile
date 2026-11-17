@@ -2,12 +2,12 @@
 
 ## Install the built app
 
-**Built and verified:** `mobile/artifacts/klaso-mobile-0.1.2-arm64-debug.apk` (7.8 MB), version 0.1.2, ARM64, Android 7 / API 24 or later. APK v2 signature and 16 KB ZIP alignment checks passed. Copy it to an ARM64 Android phone (Android 7 / API 24 or later), open it and allow installation from your file manager when Android asks. This is a debug-signed development build, not a Play Store release. No account or school data is bundled.
+**Built and verified:** `mobile/artifacts/klaso-mobile-0.1.4-arm64-debug.apk` (7.6 MB), version 0.1.4 / version code 5, ARM64, Android 7 / API 24 or later. APK v2 signature and 16 KB ZIP alignment checks passed; its signing certificate matches v0.1.3. Copy it to an ARM64 Android phone (Android 7 / API 24 or later), open it and allow installation from your file manager when Android asks. This is a debug-signed development build, not a Play Store release. No account or school data is bundled.
 
 Alternatively, with USB debugging enabled:
 
 ```sh
-adb install -r mobile/artifacts/klaso-mobile-0.1.2-arm64-debug.apk
+adb install -r mobile/artifacts/klaso-mobile-0.1.4-arm64-debug.apk
 ```
 
 Open **Profile → Explore offline demo** to explore fictional data without contacting Librus. In the installed Android app, Profile also supports real Synergia login. Opening a real message can mark it read remotely. Use **Profile → Open official Librus website** if Librus asks for CAPTCHA, account setup, a password change or additional verification. Complete those steps yourself, then sign in again.
@@ -16,7 +16,7 @@ Android uses Material You styling; iPhone uses Liquid Glass styling. The browser
 
 English is the default. Profile saves English / Polski and Cobalt / Emerald / Violet / Amber. School-provided text is not translated. The green grade highlight respects the system reduced-motion preference.
 
-**App updates:** Profile → App updates includes Check for updates, automatic checks, and an Automatic updates switch that is off by default. Checks run on launch/resume; automatic mode downloads updates and opens Android's installer while the app is open. Android asks you to confirm installation and may first ask you to allow installs from Klaso Mobile. Checks/downloads contact the public GitHub release feed and may use mobile data. Future update APKs must use the same signing key and a higher version name and version code. See `MOBILE_ARCHITECTURE.md` for the release asset contract. This feature is a source change after v0.1.2 and is not present in the previously published v0.1.2 APK.
+**App updates:** Profile → App updates includes Check for updates, automatic checks, and an Automatic updates switch that is off by default. Checks run on launch/resume; automatic mode downloads updates and opens Android's installer while the app is open. Android asks you to confirm installation and may first ask you to allow installs from Klaso Mobile. Checks/downloads contact the public GitHub release feed and may use mobile data. Future update APKs must use the same signing key and a higher version name and version code. See `MOBILE_ARCHITECTURE.md` for the release asset contract. App updates have been available since v0.1.3.
 
 ## Build from source
 
@@ -78,4 +78,4 @@ See `MOBILE_ARCHITECTURE.md` for native storage, session recovery, cache behavio
 
 
 
-Version 0.1.2 changes and validation are documented in `CHANGELOG_0.1.2.md`. The repository is https://github.com/chillyfrog123/klaso-mobile. Saved accounts are kept in the encrypted `accounts-v1` registry; the active marker stores only the selected owner. Switching restores that account lazily and displays its encrypted cache.
+Version 0.1.4 changes and validation are documented in `CHANGELOG_0.1.4.md`. The repository is https://github.com/chillyfrog123/klaso-mobile. Saved accounts are kept in the encrypted `accounts-v1` registry; the active marker stores only the selected owner. Switching restores that account lazily and displays its encrypted cache.

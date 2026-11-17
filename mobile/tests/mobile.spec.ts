@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import packageInfo from "../package.json" with { type: "json" };
 async function demo(page: any) {
   await page.goto("/");
   await page
@@ -123,7 +124,7 @@ test("Android uses Material You and the iPhone preview keeps Liquid Glass", asyn
   await page.screenshot({ path: "artifacts/iphone-glass-grades.png" });
 });
 
-test("0.1.2 custom choices, dark theme, behavior order and blue sixes", async ({
+test("custom choices, dark theme, behavior order and blue sixes", async ({
   page,
 }) => {
   await demo(page);
@@ -156,7 +157,7 @@ test("0.1.2 custom choices, dark theme, behavior order and blue sixes", async ({
   await page
     .getByRole("button", { name: "About the app", exact: true })
     .click();
-  await expect(page.getByText("Version 0.1.2")).toBeVisible();
+  await expect(page.getByText(`Version ${packageInfo.version}`)).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Klaso Mobile", exact: true }),
   ).toBeVisible();

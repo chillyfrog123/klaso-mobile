@@ -4,7 +4,7 @@ A lightweight, unofficial mobile companion for Librus Synergia. Android first, w
 
 ## Download
 
-Get the **Android ARM64 APK** from [GitHub Releases](https://github.com/chillyfrog123/klaso-mobile/releases). Version **0.1.2** requires Android 7.0 / API 24 or later. The current APK is a debug-signed development build.
+Get the **Android ARM64 APK** from [GitHub Releases](https://github.com/chillyfrog123/klaso-mobile/releases). Version **0.1.4** requires Android 7.0 / API 24 or later. The current APK is a debug-signed development build.
 
 Copy the APK to your phone and open it to install. Try **Profile → Explore offline demo** for fictional data, or sign in with your Synergia account.
 
@@ -17,6 +17,8 @@ Copy the APK to your phone and open it to install. Try **Profile → Explore off
 - Multiple encrypted remembered accounts and separate cached datasets.
 - English / Polski, System / Light / Dark themes and four accent colors.
 - Material You on Android; Liquid Glass in the iPhone preview.
+- Compact headers, cards and spacing to fit more school information on screen.
+- Update checks and prompts, with optional automatic downloads off by default.
 
 A native iOS build is not yet available. The Swift storage/bridge adapter and device validation remain future work.
 
@@ -43,7 +45,7 @@ Add `?platform=ios` to preview the iPhone appearance. Live sign-in uses the Andr
 - [Android setup, builds and installation](MOBILE_SETUP.md)
 - [Architecture and encrypted storage](MOBILE_ARCHITECTURE.md)
 - [Validation and remaining device checks](MOBILE_VALIDATION.md)
-- [Version 0.1.2 changes](CHANGELOG_0.1.2.md)
+- [Version 0.1.4 changes](CHANGELOG_0.1.4.md)
 
 Live login, school-specific room values and device behavior still require physical-device validation. Never commit credentials, private school data or machine-local build configuration.
 

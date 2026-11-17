@@ -603,10 +603,12 @@ function App() {
                           {t("lesson")} {l.number}
                         </span>
                         <h3>{l.subject}</h3>
-                        <p>{l.teacher}</p>
-                        <small>
-                          {t("room")} {l.room}
-                        </small>
+                        <p className="lesson-meta">
+                          <span>{l.teacher}</span>
+                          <span>
+                            {t("room")} {l.room}
+                          </span>
+                        </p>
                         {(l.canceled || l.substitution) && (
                           <b>{t(l.canceled ? "canceled" : "substitution")}</b>
                         )}
@@ -654,7 +656,7 @@ function App() {
             <p>{t("averageHint")}</p>
           </div>
           <div className="summary-icon">
-            <GraduationCap size={34} />
+            <GraduationCap size={28} />
           </div>
           <div className="summary-footer">
             <span>
@@ -1237,7 +1239,6 @@ function App() {
         )}
         <div className="page-heading">
           <div>
-            <span className="eyebrow">{t("greeting")}</span>
             <h1>{t(tab)}</h1>
           </div>
           {tab !== "Profile" && (account || demo) && (

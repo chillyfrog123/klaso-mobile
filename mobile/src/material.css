@@ -22,7 +22,7 @@
   background: var(--md-surface);
 }
 :root[data-design="material"] h1 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 450;
   letter-spacing: 0;
 }
@@ -64,9 +64,9 @@
   border: 0;
 }
 :root[data-design="material"] .refresh {
-  width: 52px;
-  height: 52px;
-  border-radius: 17px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   background: var(--md-primary-container);
   color: var(--md-on-primary-container);
 }
@@ -75,16 +75,16 @@
   font-weight: 600;
 }
 :root[data-design="material"] .card {
-  border-radius: 24px;
+  border-radius: 18px;
   border: 0;
   box-shadow: none;
   background: #fff;
 }
 :root[data-design="material"] .summary-card {
   border: 0;
-  border-radius: 28px;
+  border-radius: 20px;
   background: var(--md-primary-container);
-  padding: 24px;
+  padding: 14px;
 }
 :root[data-design="material"] .summary-card h2 {
   color: var(--md-on-primary-container);
@@ -115,22 +115,22 @@
   min-width: 48px;
 }
 :root[data-design="material"] .grade-row {
-  gap: 8px;
+  gap: 6px;
 }
 :root[data-design="material"] .bottom-nav {
-  border-radius: 28px;
+  border-radius: 22px;
   background: var(--md-container-high);
-  padding: 8px 4px;
+  padding: 4px;
   box-shadow: 0 3px 8px #17263d17;
 }
 :root[data-design="material"] .bottom-nav button {
-  gap: 4px;
+  gap: 0;
   padding: 3px 0 5px;
   color: var(--muted);
 }
 :root[data-design="material"] .bottom-nav button > span {
   width: min(64px, 95%);
-  height: 32px;
+  height: 28px;
   border-radius: 20px;
 }
 :root[data-design="material"] .bottom-nav .active {
@@ -171,7 +171,7 @@
   background: var(--md-container);
 }
 :root[data-design="material"] .week-toolbar {
-  border-radius: 24px;
+  border-radius: 18px;
 }
 :root[data-design="material"] .day-picker .active {
   background: var(--md-primary-container);
@@ -182,11 +182,11 @@
   background: var(--md-on-primary-container);
 }
 :root[data-design="material"] .day-picker button {
-  border-radius: 24px;
+  border-radius: 18px;
 }
 :root[data-design="material"] .lesson-card {
   border: 0;
-  border-radius: 24px;
+  border-radius: 18px;
 }
 :root[data-design="material"] .day-off {
   border-radius: 24px;
@@ -229,7 +229,7 @@
   border: 0;
   border-radius: 28px;
   background: var(--md-container-high);
-  min-height: 56px;
+  min-height: 48px;
 }
 :root[data-design="material"] .search-box input {
   background: transparent;

@@ -87,8 +87,8 @@ select {
   border-radius: 12px;
   color: inherit;
   background: #fff;
-  min-height: 48px;
-  padding: 10px 13px;
+  min-height: 44px;
+  padding: 8px 12px;
   max-width: 100%;
 }
 input:focus,
@@ -108,8 +108,8 @@ p {
   margin: 0;
 }
 h1 {
-  font-size: 34px;
-  letter-spacing: -1.2px;
+  font-size: 28px;
+  letter-spacing: -0.8px;
   line-height: 1.2;
   font-weight: 750;
 }
@@ -123,7 +123,7 @@ h3 {
   font-weight: 650;
 }
 p {
-  line-height: 1.6;
+  line-height: 1.5;
 }
 small {
   font-size: 12px;
@@ -158,9 +158,9 @@ svg {
 }
 .topbar {
   height: calc(
-    76px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+    56px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
   );
-  padding: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) 28px 0;
+  padding: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) 16px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,6 +171,8 @@ svg {
 }
 .brand {
   display: flex;
+  min-width: 44px;
+  min-height: 44px;
   align-items: center;
   gap: 7px;
   color: #14253b;
@@ -201,18 +203,14 @@ svg {
 }
 main {
   max-width: 1000px;
-  padding: 30px 28px calc(122px + var(--safe-bottom));
+  padding: 16px 16px calc(96px + var(--safe-bottom));
   margin: auto;
 }
 .page-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 0 15px;
-}
-.page-heading .eyebrow {
-  display: block;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
 }
 .refresh {
   width: 46px;
@@ -226,7 +224,7 @@ main {
   gap: 7px;
   font-size: 11px;
   color: var(--muted);
-  margin: -2px 0 23px;
+  margin: 0 0 12px;
 }
 .dot {
   display: inline-block;
@@ -245,18 +243,18 @@ main {
 .card {
   background: #fff;
   border: 1px solid #e1e7f0;
-  border-radius: 19px;
+  border-radius: 16px;
   box-shadow: 0 3px 12px #1a305006;
 }
 .bottom-nav {
   position: fixed;
-  bottom: calc(15px + var(--safe-bottom));
+  bottom: calc(8px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
-  border-radius: 26px;
-  padding: 7px;
-  width: min(calc(100% - 28px), 510px);
+  border-radius: 22px;
+  padding: 4px;
+  width: min(calc(100% - 20px), 510px);
   display: flex;
   box-shadow:
     0 8px 36px #344b6120,
@@ -265,14 +263,14 @@ main {
 .bottom-nav button {
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
   min-width: 0;
   padding: 4px 0 5px;
   color: #607087;
   border-radius: 18px;
 }
 .bottom-nav button > span {
-  height: 30px;
+  height: 26px;
   width: 48px;
   display: grid;
   place-items: center;
@@ -294,21 +292,21 @@ main {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(var(--accent-rgb), 0.13);
-  border-radius: 22px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 14px;
   background: linear-gradient(120deg, #fff 5%, rgba(var(--accent-rgb), 0.075));
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 8px;
 }
 .summary-card h2 {
-  font-size: 33px;
+  font-size: 28px;
   font-weight: 650;
   color: var(--accent);
   letter-spacing: -1.2px;
-  margin: 12px 0 4px;
+  margin: 6px 0 2px;
   font-variant-numeric: tabular-nums;
 }
 .summary-card p {
@@ -316,18 +314,18 @@ main {
   color: var(--muted);
 }
 .summary-icon {
-  width: 64px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   color: var(--accent);
-  border-radius: 22px;
+  border-radius: 14px;
   background: #ffffff90;
   border: 1px solid #fff;
 }
 .summary-footer {
   border-top: 1px solid rgba(var(--accent-rgb), 0.1);
-  padding-top: 13px;
+  padding-top: 8px;
   width: 100%;
   display: flex;
   gap: 18px;
@@ -338,8 +336,8 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin: 25px 0 13px;
+  gap: 8px;
+  margin: 16px 0 8px;
 }
 .section-toolbar select {
   font-size: 12px;
@@ -350,24 +348,26 @@ main {
 }
 .subjects {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 .subject {
-  padding: 19px;
+  padding: 12px;
 }
 .subject-heading {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .subject-heading h3 {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .subject-icon {
   font-size: 11px;
   font-weight: 650;
   color: var(--muted);
-  padding: 8px;
+  padding: 6px;
   background: #f3f6fa;
   border-radius: 10px;
 }
@@ -381,13 +381,13 @@ main {
 .grade-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 17px;
+  gap: 6px;
+  margin-top: 8px;
 }
 .grade {
-  height: 43px;
-  min-width: 43px;
-  min-height: 43px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0 10px;
   font-size: 17px;
   font-weight: 700;
@@ -431,8 +431,7 @@ main {
   pointer-events: none;
 }
 .behaviour {
-  margin-top: 23px;
-  padding: 20px;
+  padding: 14px;
 }
 .behaviour .section-toolbar {
   margin: 0 0 7px;
@@ -443,12 +442,12 @@ main {
 .behaviour-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 15px;
+  gap: 8px;
+  margin-top: 8px;
   font-size: 13px;
 }
 .behaviour-row strong {
-  padding: 7px 10px;
+  padding: 4px 8px;
   background: #f0f3f8;
   border-radius: 9px;
 }
@@ -460,7 +459,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px;
+  padding: 2px 4px;
   border-radius: 16px;
 }
 .week-toolbar > div {
@@ -469,7 +468,7 @@ main {
 }
 .week-toolbar .text-button {
   display: flex;
-  min-height: 28px;
+  min-height: 44px;
   margin: auto;
   font-size: 11px;
 }
@@ -485,15 +484,15 @@ main {
 .day-picker {
   display: flex;
   gap: 4px;
-  margin: 18px 0 27px;
+  margin: 10px 0 14px;
   justify-content: space-between;
 }
 .day-picker button {
   min-width: 0;
   flex: 1;
   flex-direction: column;
-  padding: 10px 2px;
-  gap: 5px;
+  padding: 6px 2px;
+  gap: 2px;
   border-radius: 15px;
   color: var(--muted);
 }
@@ -521,7 +520,7 @@ main {
   align-items: center;
   justify-content: space-between;
   font-size: 18px;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 .day-column h2 span {
   font-size: 12px;
@@ -538,17 +537,17 @@ main {
   background: white;
   border: 1px solid #e1e7f0;
   border-radius: 17px;
-  margin: 10px 0;
-  padding: 16px 14px;
-  gap: 15px;
+  margin: 6px 0;
+  padding: 10px 12px;
+  gap: 10px;
   justify-content: flex-start;
 }
 .lesson-time {
   align-self: stretch;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding-right: 14px;
+  gap: 3px;
+  padding-right: 10px;
   border-right: 1px solid #dce5f0;
   font-variant-numeric: tabular-nums;
   min-width: 59px;
@@ -562,6 +561,8 @@ main {
 }
 .lesson-info {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .lesson-number {
   font-size: 10px;
@@ -571,17 +572,23 @@ main {
 }
 .lesson-info h3 {
   font-size: 16px;
-  margin: 3px 0;
+  margin: 2px 0;
 }
 .lesson-info p,
 .lesson-info small {
   font-size: 12px;
   color: var(--muted);
 }
+.lesson-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  line-height: 1.4;
+}
 .lesson-info b {
   display: block;
   font-size: 11px;
-  margin-top: 7px;
+  margin-top: 4px;
 }
 .lesson-card > svg {
   color: var(--muted);
@@ -609,7 +616,7 @@ main {
   color: #80552d;
 }
 .day-off {
-  padding: 28px;
+  padding: 20px;
   border: 1px solid #f1c7cf;
   background: #fbe8ec;
   border-radius: 18px;
@@ -624,15 +631,15 @@ main {
 }
 .profile-banner {
   text-align: center;
-  padding: 10px 12px 27px;
+  padding: 4px 8px 16px;
 }
 .avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 25px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: grid;
   place-items: center;
-  margin: 0 auto 15px;
+  margin: 0 auto 8px;
   color: var(--accent);
   background: linear-gradient(135deg, #fff, rgba(var(--accent-rgb), 0.1));
   border: 1px solid white;
@@ -644,30 +651,30 @@ main {
 .profile-banner p {
   font-size: 13px;
   color: var(--muted);
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
+  padding: 5px 10px;
   border-radius: 20px;
   font-size: 11px;
-  margin-top: 12px;
+  margin-top: 8px;
   background: #e7f3ec;
   color: #246948;
 }
 .login-form {
-  padding: 23px;
-  margin-bottom: 20px;
+  padding: 16px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 .login-form > label:not(.checkbox) {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   font-size: 12px;
   font-weight: 600;
 }
@@ -681,9 +688,9 @@ main {
 .primary {
   background: var(--accent);
   color: white;
-  padding: 13px 20px;
+  padding: 10px 16px;
   font-weight: 650;
-  min-height: 50px;
+  min-height: 44px;
 }
 .secure-hint {
   display: flex;
@@ -693,14 +700,16 @@ main {
   color: var(--muted);
 }
 .settings {
-  padding: 23px;
-  margin-bottom: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
 }
 .setting-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 19px 0 20px;
+  gap: 12px;
+  min-height: 44px;
+  margin: 10px 0;
   font-size: 14px;
 }
 .setting-row select {
@@ -709,7 +718,7 @@ main {
 }
 .settings > p {
   font-size: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .accents {
   display: flex;
@@ -718,7 +727,7 @@ main {
 }
 .accents button {
   flex-direction: column;
-  gap: 9px;
+  gap: 6px;
   font-size: 11px;
   flex: 1;
   min-width: 0;
@@ -749,11 +758,11 @@ main {
   box-shadow: 0 0 0 2px var(--accent);
 }
 .privacy {
-  padding: 20px;
+  padding: 14px;
   display: flex;
-  gap: 14px;
+  gap: 10px;
   color: var(--accent);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .privacy h3 {
   color: #24334a;
@@ -781,9 +790,9 @@ main {
   border: 1px solid #f0cad0;
   background: #fff0f2;
   color: #942e42;
-  padding: 15px 17px;
+  padding: 12px 14px;
   border-radius: 14px;
-  margin: 15px 0;
+  margin: 12px 0;
   font-size: 13px;
 }
 .error button {
@@ -791,12 +800,12 @@ main {
   font-size: 12px;
 }
 .empty {
-  padding: 60px 18px;
+  padding: 36px 16px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   color: var(--muted);
 }
 .empty > svg {
@@ -817,7 +826,7 @@ main {
   background: rgba(var(--accent-rgb), 0.07);
   border: 1px dashed rgba(var(--accent-rgb), 0.24);
   padding: 0 9px 0 13px;
-  margin: -10px 0 24px;
+  margin: 0 0 12px;
   border-radius: 12px;
   color: var(--accent);
   font-size: 11px;
@@ -826,11 +835,11 @@ main {
   flex: 1;
 }
 .demo-banner button {
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 44px;
+  min-height: 44px;
 }
 .filter-card {
-  padding: 20px;
+  padding: 14px;
 }
 .filter-card h2 {
   display: flex;
@@ -841,14 +850,14 @@ main {
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 8px;
+  gap: 6px;
+  margin: 10px 0 4px;
 }
 .filter-chips button {
   font-size: 11px;
   border: 1px solid #dce4ee;
-  padding: 8px 12px;
-  gap: 7px;
+  padding: 6px 8px;
+  gap: 5px;
   background: #f7f9fc;
 }
 .filter-chips button.active {
@@ -864,7 +873,7 @@ main {
   justify-content: space-between;
   color: var(--accent);
   font-size: 12px;
-  margin: 2px 0 6px;
+  margin: 0 0 4px;
 }
 .filter-card > .muted {
   font-size: 11px;
@@ -921,9 +930,9 @@ main {
 }
 .segmented {
   display: flex;
-  padding: 5px;
+  padding: 3px;
   border-radius: 15px;
-  margin-bottom: 17px;
+  margin-bottom: 10px;
 }
 .segmented button {
   flex: 1;
@@ -938,14 +947,14 @@ main {
 }
 .search-box {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   background: white;
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 0 13px;
   color: var(--muted);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 .search-box input {
   width: 100%;
@@ -956,21 +965,21 @@ main {
   outline-offset: 0;
 }
 .search-box button {
-  min-width: 35px;
+  min-width: 44px;
 }
 .read-hint {
   font-size: 11px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .mail-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .mail-card {
   display: block;
   text-align: left;
-  padding: 19px;
+  padding: 12px;
   width: 100%;
   border-left: 3px solid transparent;
 }
@@ -987,7 +996,7 @@ main {
   gap: 12px;
   font-size: 11px;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .mail-top > span {
   max-width: 75%;
@@ -1010,7 +1019,7 @@ main {
   vertical-align: middle;
 }
 .mail-card > p {
-  margin: 8px 0 12px;
+  margin: 6px 0 8px;
   font-size: 12px;
   color: var(--muted);
   display: -webkit-box;
@@ -1039,19 +1048,19 @@ main {
 }
 .reader {
   display: none;
-  padding: 23px;
+  padding: 16px;
 }
 .reader > .text-button {
-  margin: -6px 0 17px -8px;
+  margin: -4px 0 10px -8px;
 }
 .reader > .eyebrow {
   display: block;
-  margin: 10px 0;
+  margin: 8px 0;
 }
 .reader h2 {
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.3;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .reader .sender {
   color: var(--accent);
@@ -1065,18 +1074,18 @@ main {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font-size: 14px;
-  line-height: 1.8;
-  padding: 22px 0;
+  line-height: 1.6;
+  padding: 14px 0;
 }
 .attachment-box {
   border-top: 1px solid var(--line);
-  padding-top: 18px;
+  padding-top: 12px;
 }
 .attachment-box h3 {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .attachment-box > p {
   font-size: 12px;
@@ -1088,8 +1097,8 @@ main {
   display: none;
 }
 .notice {
-  padding: 21px;
-  margin-top: 12px;
+  padding: 14px;
+  margin-top: 8px;
 }
 .notice summary {
   cursor: pointer;
@@ -1099,8 +1108,8 @@ main {
   display: none;
 }
 .notice h3 {
-  font-size: 17px;
-  margin: 10px 0;
+  font-size: 16px;
+  margin: 6px 0;
 }
 .notice .eyebrow {
   font-size: 9px;
@@ -1118,7 +1127,7 @@ main {
 .detail-sheet {
   border: 1px solid #fff;
   border-radius: 28px 28px 0 0;
-  padding: 30px 25px calc(28px + var(--safe-bottom));
+  padding: 24px 18px calc(18px + var(--safe-bottom));
   background: #f9fbff;
   color: #17263d;
   max-width: 540px;
@@ -1139,7 +1148,7 @@ main {
   width: 36px;
   background: #d2dbe6;
   border-radius: 4px;
-  margin: -19px auto 25px;
+  margin: -13px auto 18px;
 }
 .close-sheet {
   position: absolute;
@@ -1149,12 +1158,12 @@ main {
 }
 .detail-sheet > .eyebrow {
   display: block;
-  margin: 0 40px 17px 0;
+  margin: 0 44px 12px 0;
 }
 .sheet-title {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 .sheet-title .grade {
   height: 55px;
@@ -1165,13 +1174,13 @@ main {
   font-size: 22px;
 }
 dl {
-  margin: 22px 0 0;
+  margin: 14px 0 0;
 }
 dl > div {
   display: flex;
   justify-content: space-between;
-  gap: 22px;
-  padding: 13px 0;
+  gap: 14px;
+  padding: 10px 0;
   border-top: 1px solid #e3e9f1;
   font-size: 13px;
 }
@@ -1217,16 +1226,16 @@ dd {
 }
 @media (min-width: 700px) {
   main {
-    padding-top: 38px;
+    padding: 20px 24px calc(96px + var(--safe-bottom));
   }
   .subjects {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .summary-card {
-    padding: 28px;
+    padding: 16px;
   }
   .summary-card h2 {
-    font-size: 40px;
+    font-size: 32px;
   }
   .week-toggle {
     display: inline-flex;
@@ -1234,13 +1243,13 @@ dd {
   .week-view {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
+    gap: 12px;
   }
   .week-view .inactive-day {
     display: block;
   }
   .week-view .lesson-card {
-    padding: 12px 9px;
+    padding: 10px 9px;
     gap: 8px;
   }
   .week-view .lesson-time {
@@ -1263,14 +1272,17 @@ dd {
   .mail-layout {
     display: grid;
     grid-template-columns: minmax(250px, 0.8fr) minmax(300px, 1.2fr);
-    gap: 20px;
+    gap: 12px;
     align-items: start;
   }
   .reader {
     display: block;
     position: sticky;
-    top: 100px;
-    max-height: calc(100dvh - 210px);
+    top: calc(72px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    max-height: calc(
+      100dvh - 168px - var(--safe-bottom) -
+        var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+    );
     overflow: auto;
   }
   .reading .mail-list {
@@ -1305,11 +1317,8 @@ dd {
     padding-right: 16px;
   }
   .topbar {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-  .subject {
-    padding: 15px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
   .subject-heading {
     gap: 7px;
@@ -1324,7 +1333,7 @@ dd {
     font-size: 9px;
   }
   .summary-card h2 {
-    font-size: 29px;
+    font-size: 26px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

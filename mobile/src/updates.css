@@ -1,7 +1,7 @@
 .choice {
   border: 0;
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 18px;
   background: #fff;
   color: #17263d;
   width: min(90vw, 420px);
@@ -9,12 +9,12 @@
   overflow: auto;
 }
 .update-setting {
-  gap: 18px;
+  gap: 12px;
   align-items: flex-start;
 }
 .update-setting small {
   display: block;
-  margin-top: 6px;
+  margin-top: 4px;
   color: var(--muted);
   line-height: 1.5;
 }
@@ -55,7 +55,7 @@
   margin: 12px 0;
 }
 .app-updates details {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .update-prompt > p {
   margin: 12px 0;
@@ -65,34 +65,35 @@
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 22px;
+  gap: 8px;
+  margin-top: 14px;
 }
 .update-notice {
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 12px;
+  margin-bottom: 12px;
 }
 .choice::backdrop {
   background: #17263d66;
 }
 .choice h2 {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .choice [role="radio"] {
   display: flex;
   width: 100%;
   justify-content: space-between;
-  padding: 12px 16px;
-  min-height: 52px;
+  padding: 8px 12px;
+  min-height: 48px;
 }
 .choice [aria-checked="true"] {
   background: rgba(var(--accent-rgb), 0.15);
   color: var(--accent);
 }
 .choice-trigger {
-  padding: 10px 14px;
+  padding: 8px 10px;
   background: rgba(var(--accent-rgb), 0.09);
-  gap: 16px;
+  gap: 10px;
+  font-size: 13px;
 }
 .choice-trigger > span {
   margin-left: auto;
@@ -101,7 +102,7 @@
   min-width: 130px;
 }
 .behaviour {
-  margin: 0 0 20px;
+  margin: 0 0 12px;
 }
 .grade.excellent {
   color: #155ac0;
@@ -124,19 +125,20 @@
 .attendance-day > .card {
   display: flex;
   overflow-x: auto;
-  padding: 12px;
-  gap: 10px;
+  padding: 8px;
+  gap: 8px;
   scroll-snap-type: x proximity;
 }
 .attendance-row {
-  flex: 0 0 150px;
+  flex: 0 0 136px;
   flex-direction: column;
   align-items: flex-start;
   border: 0;
-  padding: 12px;
+  padding: 10px;
+  gap: 8px;
   scroll-snap-align: start;
   background: rgba(var(--accent-rgb), 0.04);
-  border-radius: 16px;
+  border-radius: 12px;
 }
 .attendance-row h3 {
   font-size: 13px;
@@ -159,8 +161,8 @@
 }
 .accounts,
 .about {
-  padding: 22px;
-  margin: 0 auto 20px;
+  padding: 16px;
+  margin: 0 auto 12px;
   max-width: 560px;
 }
 .account-row {
@@ -176,7 +178,7 @@
 .about p,
 .about a {
   display: block;
-  margin: 18px 0;
+  margin: 12px 0;
 }
 .about a {
   color: var(--accent);
