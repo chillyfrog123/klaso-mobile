@@ -1,4 +1,38 @@
 export const en = {
+  appUpdates: "App updates",
+  autoCheckUpdates: "Check automatically",
+  autoCheckHint:
+    "Check on launch and when returning to the app, at most every 6 hours.",
+  autoUpdate: "Automatic updates",
+  autoUpdateHint:
+    "Off by default. Download new versions and open the installer while the app is open. Android asks you to confirm installation.",
+  updateNetworkHint:
+    "Checks and downloads connect to GitHub and may use mobile data. No school data is sent.",
+  updatesAndroidOnly: "App updates are available in the installed Android app.",
+  checkUpdates: "Check for updates",
+  checkingUpdates: "Checking for updates…",
+  appUpToDate: "You're using the latest version.",
+  updateAvailable: "Update available",
+  newVersion: "New version:",
+  updatePromptHint:
+    "Download and install the latest version? Android will ask you to confirm installation.",
+  installUpdate: "Download and update",
+  updateLater: "Later",
+  releaseNotes: "What's new",
+  downloadingUpdate: "Downloading and verifying update…",
+  updateInstallerOpened:
+    "Installer opened. Confirm the update in Android. If you canceled, you can try again here.",
+  updateCheckFailed:
+    "Could not check for updates. Check your connection and try again.",
+  updatesUnavailable:
+    "Updates are unavailable. A public GitHub release with an ARM64 APK and SHA-256 digest is required.",
+  updateDownloadFailed:
+    "Could not download or open the update. Check your connection and try again.",
+  updatePermissionRequired:
+    "Allow Klaso Mobile to install apps in Android settings, then try the update again.",
+  updateVerificationFailed:
+    "The update could not be verified for this app and device. Nothing was installed.",
+  updateChanged: "The available release changed. Check for updates again.",
   accounts: "Saved accounts",
   addAccount: "Add account",
   forgetAccount: "Forget",
@@ -131,6 +165,42 @@ export const en = {
 };
 export type Label = keyof typeof en;
 export const pl: Record<Label, string> = {
+  appUpdates: "Aktualizacje aplikacji",
+  autoCheckUpdates: "Sprawdzaj automatycznie",
+  autoCheckHint:
+    "Sprawdzaj przy uruchomieniu i powrocie do aplikacji, nie częściej niż co 6 godzin.",
+  autoUpdate: "Automatyczne aktualizacje",
+  autoUpdateHint:
+    "Domyślnie wyłączone. Pobieraj nowe wersje i otwieraj instalator, gdy aplikacja jest otwarta. Android prosi o potwierdzenie instalacji.",
+  updateNetworkHint:
+    "Sprawdzanie i pobieranie łączy się z GitHubem i może korzystać z danych komórkowych. Dane szkolne nie są wysyłane.",
+  updatesAndroidOnly:
+    "Aktualizacje są dostępne w zainstalowanej aplikacji na Androida.",
+  checkUpdates: "Sprawdź aktualizacje",
+  checkingUpdates: "Sprawdzanie aktualizacji…",
+  appUpToDate: "Korzystasz z najnowszej wersji.",
+  updateAvailable: "Dostępna aktualizacja",
+  newVersion: "Nowa wersja:",
+  updatePromptHint:
+    "Pobrać i zainstalować najnowszą wersję? Android poprosi o potwierdzenie instalacji.",
+  installUpdate: "Pobierz i zaktualizuj",
+  updateLater: "Później",
+  releaseNotes: "Co nowego",
+  downloadingUpdate: "Pobieranie i weryfikowanie aktualizacji…",
+  updateInstallerOpened:
+    "Instalator został otwarty. Potwierdź aktualizację w Androidzie. Jeśli anulowano, możesz spróbować ponownie tutaj.",
+  updateCheckFailed:
+    "Nie udało się sprawdzić aktualizacji. Sprawdź połączenie i spróbuj ponownie.",
+  updatesUnavailable:
+    "Aktualizacje są niedostępne. Wymagane jest publiczne wydanie GitHub z plikiem APK ARM64 i sumą SHA-256.",
+  updateDownloadFailed:
+    "Nie udało się pobrać lub otworzyć aktualizacji. Sprawdź połączenie i spróbuj ponownie.",
+  updatePermissionRequired:
+    "Zezwól Klaso Mobile na instalowanie aplikacji w ustawieniach Androida, a następnie spróbuj ponownie.",
+  updateVerificationFailed:
+    "Nie udało się zweryfikować aktualizacji dla tej aplikacji i urządzenia. Nic nie zainstalowano.",
+  updateChanged:
+    "Dostępne wydanie uległo zmianie. Sprawdź aktualizacje ponownie.",
   accounts: "Zapisane konta",
   addAccount: "Dodaj konto",
   forgetAccount: "Usuń zapis",

@@ -16,6 +16,8 @@ Android uses Material You styling; iPhone uses Liquid Glass styling. The browser
 
 English is the default. Profile saves English / Polski and Cobalt / Emerald / Violet / Amber. School-provided text is not translated. The green grade highlight respects the system reduced-motion preference.
 
+**App updates:** Profile → App updates includes Check for updates, automatic checks, and an Automatic updates switch that is off by default. Checks run on launch/resume; automatic mode downloads updates and opens Android's installer while the app is open. Android asks you to confirm installation and may first ask you to allow installs from Klaso Mobile. Checks/downloads contact the public GitHub release feed and may use mobile data. Future update APKs must use the same signing key and a higher version name and version code. See `MOBILE_ARCHITECTURE.md` for the release asset contract. This feature is a source change after v0.1.2 and is not present in the previously published v0.1.2 APK.
+
 ## Build from source
 
 Prerequisites:

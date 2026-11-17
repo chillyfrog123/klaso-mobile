@@ -51,6 +51,12 @@ import {
   RequestGate,
 } from "./model";
 import { Choice } from "./Choice";
+import {
+  UpdateSettings,
+  UpdatePrompt,
+  UpdateNotice,
+  useUpdates,
+} from "./Updates";
 import "./styles.css";
 import "./material.css";
 import "./updates.css";
@@ -79,6 +85,7 @@ function preference(key: string, fallback: string) {
   }
 }
 function App() {
+  const updates = useUpdates();
   const [lang, setLang] = useState(preference("language", "en"));
   const [mode, setMode] = useState(preference("theme", "system"));
   const [savedAccounts, setSavedAccounts] = useState<string[]>([]);
@@ -980,7 +987,9 @@ function App() {
         <section className="card about">
           <button onClick={() => setAbout(false)}>{t("back")}</button>
           <h2>Klaso Mobile</h2>
-          <p>{t("version")} 0.1.2</p>
+          <p>
+            {t("version")} {updates.state.currentVersion}
+          </p>
           <section className="privacy">
             <ShieldCheck size={24} />
             <div>
@@ -1148,6 +1157,7 @@ function App() {
             ))}
           </div>
         </section>
+        <UpdateSettings updates={updates} t={t} />
         <button className="wide secondary" onClick={() => void official()}>
           {t("official")}
           <ArrowUpRight size={18} />
@@ -1206,6 +1216,16 @@ function App() {
         </button>
       </header>
       <main>
+        {tab !== "Profile" && (
+          <UpdateNotice
+            updates={updates}
+            t={t}
+            onManage={() => {
+              setAbout(false);
+              setTab("Profile");
+            }}
+          />
+        )}
         {demo && (
           <div className="demo-banner">
             <WifiOff size={15} />
@@ -1280,6 +1300,7 @@ function App() {
           );
         })}
       </nav>
+      <UpdatePrompt updates={updates} t={t} />
       <dialog
         ref={dialog}
         className="detail-sheet"

@@ -1,3 +1,15 @@
+# App updater validation — 17 November 2026
+
+Release v0.1.3 includes the app updater. APK: `mobile/artifacts/klaso-mobile-0.1.3-arm64-debug.apk`, version 0.1.3 / version code 4.
+
+- TypeScript/Vite build and Capacitor Android asset sync passed.
+- 26 frontend unit tests passed, including 11 updater tests covering default opt-out, prompting/dismissal, persisted opt-in, manual checks and install, six-hour resume throttling, disabled checks, offline failures, installer permission denial, foreground deferral, unsupported platforms, and concurrent-operation suppression.
+- All 13 Playwright browser scenarios passed, including five updater scenarios for prompts/manual installation, persisted automatic mode, disabled checks, permission-denial retry, Polish labels at 320 px, and native-only browser behavior. These updater scenarios mock the native bridge; they do not perform an Android installation. Screenshots were visually reviewed.
+- Three Android/JUnit release-policy tests passed: numeric stable versions/downgrade rejection, ARM64 asset/digest validation, and rejection of foreign/insecure URLs.
+- Android debug APK assembly and lint passed (0 errors, 5 warnings). The existing ARM64 Rust library was reused; no Rust source changed.
+- The public GitHub latest-release endpoint returned v0.1.2 with an ARM64 APK and SHA-256 digest. No GitHub authentication or Librus account was used for this check.
+- No Android device was attached. End-to-end native network checks, downloads, checksum/package/signature verification on-device, unknown-source permission round-trip, foreground handoff, installer cancellation, and a completed in-place upgrade still require physical-device testing. Use a same-key, higher-version test release; do not replace an official release solely for a test.
+
 # Klaso Mobile 0.1.2 validation
 
 Current release: see `CHANGELOG_0.1.2.md`. 23 Rust tests, 15 frontend unit tests and 8 browser scenarios passed. TypeScript/Vite, Android ARM64 build, Android lint, Rust Clippy, APK signature and 16 KB alignment checks passed. Physical-device behavior, live accounts and actual school room values have not been verified.

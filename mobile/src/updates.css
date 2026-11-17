@@ -8,6 +8,70 @@
   max-height: 80dvh;
   overflow: auto;
 }
+.update-setting {
+  gap: 18px;
+  align-items: flex-start;
+}
+.update-setting small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.update-setting input[role="switch"] {
+  appearance: none;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 32px;
+  min-height: 32px;
+  margin: 6px 0;
+  padding: 3px;
+  border: 2px solid var(--muted);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+.update-setting input[role="switch"]::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.update-setting input[role="switch"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.update-setting input[role="switch"]:checked::before {
+  background: var(--md-surface, white);
+  transform: translateX(16px);
+}
+.release-notes {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow: auto;
+  margin: 12px 0;
+}
+.app-updates details {
+  margin-bottom: 16px;
+}
+.update-prompt > p {
+  margin: 12px 0;
+  line-height: 1.5;
+}
+.update-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+.update-notice {
+  padding: 16px;
+  margin-bottom: 16px;
+}
 .choice::backdrop {
   background: #17263d66;
 }
