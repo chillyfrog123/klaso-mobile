@@ -127,7 +127,7 @@ export const en = {
   loading: "Loading…",
   privacy: "Private by design",
   privacyHint:
-    "No analytics. No third-party sign-in service. School content stays in its original language.",
+    "No third-party sign-in service. School content stays in its original language.",
 };
 export type Label = keyof typeof en;
 export const pl: Record<Label, string> = {
@@ -263,5 +263,5 @@ export const pl: Record<Label, string> = {
   loading: "Ładowanie…",
   privacy: "Prywatność od podstaw",
   privacyHint:
-    "Bez analityki i pośredników logowania. Treści szkolne pozostają w oryginalnym języku.",
+    "Bez pośredników logowania. Treści szkolne pozostają w oryginalnym języku.",
 };

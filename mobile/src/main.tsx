@@ -981,15 +981,15 @@ function App() {
           <button onClick={() => setAbout(false)}>{t("back")}</button>
           <h2>Klaso Mobile</h2>
           <p>{t("version")} 0.1.2</p>
-          <p>{t("noTelemetry")}</p>
+          <section className="privacy">
+            <ShieldCheck size={24} />
+            <div>
+              <h3>{t("privacy")}</h3>
+              <p>{t("noTelemetry")}</p>
+              <p>{t("privacyHint")}</p>
+            </div>
+          </section>
           <p>React · Capacitor · Rust</p>
-          <a
-            href="https://github.com/chillyfrog123/klaso-mobile"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t("repository")}
-          </a>
           <button className="wide primary" onClick={() => void openGithub()}>
             {t("github")}
           </button>
@@ -1002,9 +1002,7 @@ function App() {
           <div className="avatar">
             <UserRound size={30} />
           </div>
-          <h2>
-            {demo ? t("offlineDemo") : (account?.owner ?? "Klaso Mobile")}
-          </h2>
+          <h2>{demo ? t("offlineDemo") : (account?.owner ?? t("account"))}</h2>
           <p>
             {demo
               ? t("demoHint")
@@ -1150,13 +1148,6 @@ function App() {
             ))}
           </div>
         </section>
-        <section className="card privacy">
-          <ShieldCheck size={24} />
-          <div>
-            <h3>{t("privacy")}</h3>
-            <p>{t("privacyHint")}</p>
-          </div>
-        </section>
         <button className="wide secondary" onClick={() => void official()}>
           {t("official")}
           <ArrowUpRight size={18} />
@@ -1195,6 +1186,7 @@ function App() {
       <header className="topbar glass">
         <a
           className="brand"
+          aria-label={t("Timetable")}
           href="#"
           onClick={(e) => {
             e.preventDefault();
@@ -1204,7 +1196,6 @@ function App() {
           <span className="brand-mark">
             <BookOpen size={21} />
           </span>
-          Klaso<span>mobile</span>
         </a>
         <button
           className="profile-button"

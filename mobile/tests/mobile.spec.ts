@@ -128,6 +128,7 @@ test("0.1.2 custom choices, dark theme, behavior order and blue sixes", async ({
 }) => {
   await demo(page);
   await expect(page.locator("select")).toHaveCount(0);
+  await expect(page.locator(".topbar")).not.toContainText("Klaso");
   expect(
     await page
       .locator(".behaviour")
@@ -145,6 +146,10 @@ test("0.1.2 custom choices, dark theme, behavior order and blue sixes", async ({
     .getByRole("button", { name: "Profile", exact: true })
     .first()
     .click();
+  await expect(
+    page.getByText("Private by design", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText("Klaso Mobile", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Theme", exact: true }).click();
   await page.getByRole("radio", { name: "Dark", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
@@ -152,6 +157,16 @@ test("0.1.2 custom choices, dark theme, behavior order and blue sixes", async ({
     .getByRole("button", { name: "About the app", exact: true })
     .click();
   await expect(page.getByText("Version 0.1.2")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Klaso Mobile", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Private by design", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Open GitHub", exact: true }),
+  ).toHaveCount(1);
+  await expect(page.locator(".about a")).toHaveCount(0);
   await expect(
     page.getByText(
       "No analytics or telemetry. Your school data stays private.",
