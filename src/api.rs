@@ -544,6 +544,7 @@ impl Session {
                             .iter()
                             .find(|c| data::text(c, "Id") == data::text(&v["Category"], "Id"));
                         Grade {
+                            id: data::text(v, "Id"),
                             subject: data::resolve(
                                 &v["Subject"],
                                 &subjects,
@@ -690,20 +691,7 @@ impl Session {
                 let subjects = data::names(&self.lookup("Subjects", "Subjects"));
                 let teachers = data::names(&self.lookup("Users", "Users"));
                 let records = self.lookup("Classrooms", "Classrooms");
-                let rooms = records
-                    .iter()
-                    .map(|r| {
-                        let symbol = data::text(r, "Symbol");
-                        (
-                            data::text(r, "Id"),
-                            if symbol.is_empty() {
-                                data::text(r, "Name")
-                            } else {
-                                symbol
-                            },
-                        )
-                    })
-                    .collect();
+                let rooms = data::classroom_names(&records);
                 Ok(Payload::Timetable(data::timetable(
                     &value, &subjects, &teachers, &rooms,
                 )?))

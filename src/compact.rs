@@ -481,6 +481,7 @@ mod grade_tests {
         ] {
             crate::i18n::with_language(language, || {
                 let grade = Grade {
+                    id: String::new(),
                     subject: "Demo subject".into(),
                     value: "5".into(),
                     category: "Unique test category".into(),

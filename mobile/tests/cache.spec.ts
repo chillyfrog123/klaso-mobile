@@ -14,6 +14,13 @@ async function mockNative(page: import("@playwright/test").Page, mode: string) {
           archive: { snapshots, details: {} },
         }),
         language: async () => {},
+        monitoring: async () => ({
+          enabled: false,
+          permission: "granted",
+          background: false,
+        }),
+        setSchoolPaused: async () => {},
+        consumeNotification: async () => ({}),
         official: async () => {},
         logout: async () => {},
         login: async () => ({
@@ -40,7 +47,7 @@ async function mockNative(page: import("@playwright/test").Page, mode: string) {
     },
     { fixtures: data, timestamp, mode },
   );
-  await page.route("**/src/bridge.ts", (route) =>
+  await page.route(/\/src\/bridge\.ts(?:\?.*)?$/, (route) =>
     route.fulfill({
       contentType: "application/javascript",
       body: `export const native=true;export const bridge=window.__bridge;export const official=async()=>{};export const openGithub=async()=>{};export const errorCode=()=>"requestFailed";export const demoData=async()=>({});`,

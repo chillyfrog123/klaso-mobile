@@ -14,6 +14,7 @@ pub fn payloads(week: NaiveDate) -> HashMap<Section, Payload> {
     for (i, subject) in subjects.iter().enumerate() {
         for (j, value) in ["5", "4+", "5−", "6"].iter().enumerate() {
             grades.push(Grade {
+                id: format!("demo-grade-{i}-{j}"),
                 subject: (*subject).into(),
                 value: (*value).into(),
                 category: ["Sprawdzian", "Kartkówka", "Aktywność", "Projekt"][j].into(),

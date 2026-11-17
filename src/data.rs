@@ -58,6 +58,8 @@ impl Section {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Grade {
+    #[serde(default)]
+    pub id: String,
     pub subject: String,
     pub value: String,
     pub category: String,
@@ -384,25 +386,59 @@ pub fn message(value: &Value, full: bool) -> Message {
     }
 }
 
+fn room_label(value: &Value) -> Option<String> {
+    ["Symbol", "Name", "Number"]
+        .into_iter()
+        .map(|field| text(value, field).trim().to_owned())
+        .find(|label| !label.is_empty())
+}
+
+pub fn classroom_names(records: &[Value]) -> HashMap<String, String> {
+    records
+        .iter()
+        .filter_map(|room| {
+            let id = text(room, "Id").trim().to_owned();
+            room_label(room)
+                .filter(|_| !id.is_empty())
+                .map(|label| (id, label))
+        })
+        .collect()
+}
+
 fn classroom(lesson: &Value, rooms: &HashMap<String, String>) -> String {
-    for key in ["Classroom", "ClassRoom", "Room"] {
-        let value = &lesson[key];
-        for field in ["Symbol", "Name", "Number"] {
-            let name = text(value, field);
-            if !name.trim().is_empty() {
-                return name;
+    // Prefer room text carried by the timetable itself. A reference with an
+    // unavailable/blank lookup must not hide a usable label in another field.
+    let candidates: Vec<_> = [lesson, &lesson["Lesson"]]
+        .into_iter()
+        .flat_map(|source| ["Classroom", "ClassRoom", "Room"].map(|key| &source[key]))
+        .collect();
+    for value in &candidates {
+        if let Some(label) = room_label(value) {
+            return label;
+        }
+        if !value.is_object() {
+            let raw = scalar(value).trim().to_owned();
+            if !raw.is_empty() {
+                return rooms
+                    .get(&raw)
+                    .filter(|name| !name.trim().is_empty())
+                    .map(|name| name.trim().to_owned())
+                    .unwrap_or(raw);
             }
         }
-        let raw = if value.is_object() {
-            text(value, "Id")
-        } else {
-            scalar(value)
-        };
-        if !raw.is_empty() {
-            return rooms.get(&raw).cloned().unwrap_or(raw);
-        }
     }
-    "—".to_string()
+    let mut fallback = None;
+    for value in candidates {
+        let id = text(value, "Id").trim().to_owned();
+        if id.is_empty() {
+            continue;
+        }
+        if let Some(label) = rooms.get(&id).filter(|name| !name.trim().is_empty()) {
+            return label.trim().to_owned();
+        }
+        fallback.get_or_insert(id);
+    }
+    fallback.unwrap_or_else(|| "—".to_owned())
 }
 
 pub fn timetable(
@@ -482,6 +518,7 @@ mod tests {
     use serde_json::json;
     fn sample(value: &str, weight: Option<f64>, semester: &str) -> Grade {
         Grade {
+            id: String::new(),
             subject: "Matematyka".into(),
             value: value.into(),
             category: String::new(),
@@ -503,6 +540,58 @@ mod tests {
         assert_eq!(classroom(&json!({"Classroom":{"Id":12}}), &rooms), "B-204");
         assert_eq!(classroom(&json!({"Classroom":"Gym"}), &rooms), "Gym");
         assert_eq!(classroom(&json!({}), &rooms), "—");
+    }
+    #[test]
+    fn room_lookup_does_not_turn_available_rooms_into_blank_text() {
+        let rooms = classroom_names(&[
+            json!({"Id":12,"Symbol":"  ","Name":"B-204"}),
+            json!({"Id":"13","Symbol":null,"Name":"","Number":103}),
+            json!({"Id":14,"Symbol":"","Name":""}),
+        ]);
+        assert_eq!(rooms.get("12").map(String::as_str), Some("B-204"));
+        assert_eq!(rooms.get("13").map(String::as_str), Some("103"));
+        assert!(!rooms.contains_key("14"));
+        let payload = json!({"Timetable":{"2026-11-10":[
+            [{"Subject":{"Name":"Math"},"Classroom":{"Id":"12"}}],
+            [{"Subject":{"Name":"Biology"},"Classroom":{"Id":13}}]
+        ]}});
+        let lessons = timetable(&payload, &HashMap::new(), &HashMap::new(), &rooms).unwrap();
+        assert_eq!(lessons[0].room, "B-204");
+        assert_eq!(lessons[1].room, "103");
+        let blank_lookup = HashMap::from([("14".into(), " ".into())]);
+        assert_eq!(
+            classroom(&json!({"Classroom":{"Id":14}}), &blank_lookup),
+            "14"
+        );
+    }
+    #[test]
+    fn room_text_survives_placeholders_and_nested_lesson_records() {
+        assert_eq!(
+            classroom(
+                &json!({
+                    "Classroom":{"Id":"missing"},"Room":{"Number":207}
+                }),
+                &HashMap::new()
+            ),
+            "207"
+        );
+        assert_eq!(
+            classroom(
+                &json!({
+                    "Classroom":null,"Lesson":{"Classroom":{"Symbol":"Gym"}}
+                }),
+                &HashMap::new()
+            ),
+            "Gym"
+        );
+    }
+    #[test]
+    fn previous_grade_snapshots_without_server_ids_still_load() {
+        let mut serialized = serde_json::to_value(sample("5", Some(1.), "1")).unwrap();
+        serialized.as_object_mut().unwrap().remove("id");
+        let grade: Grade = serde_json::from_value(serialized).unwrap();
+        assert!(grade.id.is_empty());
+        assert_eq!(grade.value, "5");
     }
     #[test]
     fn arithmetic_and_weighted_averages_respect_flags_semesters_and_unknown_weights() {

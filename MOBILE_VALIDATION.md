@@ -1,3 +1,13 @@
+# School notifications and room parsing — 17 November 2026
+
+Build: `mobile/artifacts/klaso-mobile-0.1.5-arm64-debug.apk`, version 0.1.5 / version code 6, 8,072,131 bytes. SHA-256: `4b428f344f0a00a01a999407a7921113a948b83a14b230a9ee648968e9e617ed`.
+
+- TypeScript/Vite production build and Capacitor Android sync passed. All 28 frontend unit tests and 21 Playwright scenarios passed. New coverage checks grade identities, new-only/semester filtering with unchanged averages, automatic polling, disabled checks, hidden/resume behavior, demo pause, permission actions, account races and room text in cards/details. The new-grades screen was visually reviewed at 320 px.
+- Mobile Rust: 26 passed, one live-account test intentionally ignored. Shared desktop compatibility: 41 passed, one live-account test ignored. Regression cases cover blank/number room labels, unresolved classroom references, nested room records and old grade snapshots without IDs. Formatting and Git whitespace checks passed.
+- All 18 Android JVM tests passed, including 15 school-change tests for silent seeding, duplicate prevention, grade-ID migration, background/new-login checkpoints, per-account histories, message read-state independence, timetable changes, multi-page inbox checks, partial-failure recovery and combined alerts.
+- ARM64 Rust backend rebuilt. App APK and instrumentation-test APK assembled. Android lint passed with zero errors and five existing tool/resource warnings. APK signature verification and 16 KB ZIP alignment passed; all native ELF LOAD segments use 16 KB alignment. Signing certificate matches the v0.1.4 APK; package ID, increasing version code, API 24 minimum and ARM64 ABI were verified.
+- No device was connected and no live school account was used. Android notification permission/settings flows, WorkManager delivery under battery restrictions, notification taps, restart/account lifecycle and installation/upgrade require physical-device checks. The exact school-specific room response was not available; parser regressions and rendered room values passed fixture tests.
+
 # Compact UI release validation — 17 November 2026
 
 Release v0.1.4 uses Android version code 5. APK: `mobile/artifacts/klaso-mobile-0.1.4-arm64-debug.apk` (7,619,309 bytes).

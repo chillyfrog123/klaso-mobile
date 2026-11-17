@@ -1209,6 +1209,35 @@ dd {
 .spinning svg {
   animation: spin 1s linear infinite;
 }
+.grade-filters {
+  margin-bottom: 12px;
+}
+.grade-filters > p {
+  margin: 8px 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.grade.is-new {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.grade-new-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.school-permission {
+  margin-bottom: 12px;
+}
+.school-permission p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
 @keyframes sweep {
   0%,
   65% {

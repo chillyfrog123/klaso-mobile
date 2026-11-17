@@ -49,7 +49,10 @@ import {
   attendanceDays,
   attendanceType,
   RequestGate,
+  gradeKeys,
+  mergeArchive,
 } from "./model";
+import { SchoolSettings, useSchoolMonitor } from "./SchoolMonitor";
 import { Choice } from "./Choice";
 import {
   UpdateSettings,
@@ -113,6 +116,7 @@ function App() {
   const [day, setDay] = useState(Math.min((new Date().getDay() + 6) % 7, 6));
   const [viewWeek, setViewWeek] = useState(false);
   const [semester, setSemester] = useState(0);
+  const [newGradesOnly, setNewGradesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState([0, 1, 2, 3, 4, 5]);
@@ -125,6 +129,43 @@ function App() {
     null,
   );
   const gate = useRef(new RequestGate());
+  const offlineFallbackWeek = useRef<string | null>(null);
+  const school = useSchoolMonitor({
+    ready,
+    account,
+    demo,
+    gate: gate.current,
+    onSync: (data) => {
+      setArchive((previous) => mergeArchive(previous, data.archive));
+      const fallback = offlineFallbackWeek.current;
+      if (
+        fallback &&
+        data.archive.snapshots[keyFor("Timetable", monday(), 1)]
+      ) {
+        setWeek((selected) => (selected === fallback ? monday() : selected));
+        offlineFallbackWeek.current = null;
+      }
+      setAccount((previous) =>
+        previous && data.account?.owner === previous.owner
+          ? data.account
+          : previous,
+      );
+    },
+    onOpen: (target) => {
+      setTab(target);
+      setReading(null);
+      setSheet(null);
+      if (target === "Grades") setNewGradesOnly(true);
+      if (target === "Messages") {
+        setInbox(true);
+        setPage(1);
+      }
+      if (target === "Timetable") {
+        setWeek(monday());
+        setViewWeek(true);
+      }
+    },
+  });
   const restore = useRef<{ account: Account | null; archive: Archive } | null>(
     null,
   );
@@ -183,7 +224,12 @@ function App() {
               const lastWeek = Object.entries(data.archive.snapshots)
                 .filter(([key]) => key.startsWith("Timetable:"))
                 .sort(([, a], [, b]) => b.updated.localeCompare(a.updated))[0];
-              if (lastWeek) setWeek(lastWeek[0].slice("Timetable:".length));
+              if (lastWeek) {
+                offlineFallbackWeek.current = lastWeek[0].slice(
+                  "Timetable:".length,
+                );
+                setWeek(offlineFallbackWeek.current);
+              }
             }
           }
         })
@@ -219,10 +265,13 @@ function App() {
           setAccount(
             (previous) => previous && { ...previous, authenticated: true },
           );
-        setArchive((prev) => ({
-          ...prev,
-          snapshots: { ...prev.snapshots, [cacheKey]: result },
-        }));
+        setArchive((prev) =>
+          mergeArchive(prev, {
+            snapshots: { [cacheKey]: result },
+            details: {},
+            activity: "activity" in result ? result.activity : undefined,
+          }),
+        );
       }
     } catch (e) {
       if (valid() && visibleView.current === view) setError(errorCode(e));
@@ -239,6 +288,9 @@ function App() {
     setDetailBusy(false);
     gate.current.begin("detail");
   }, [cacheKey, tab, account?.owner, demo]);
+  useEffect(() => {
+    setNewGradesOnly(false);
+  }, [account?.owner, demo]);
   useEffect(() => {
     if (
       ready &&
@@ -296,6 +348,14 @@ function App() {
     };
   }, []);
   async function startDemo() {
+    if (native) {
+      try {
+        await bridge.setSchoolPaused({ paused: true });
+      } catch (failure) {
+        setError(errorCode(failure));
+        return;
+      }
+    }
     restore.current = { account, archive };
     gate.current.reset();
     setError(null);
@@ -305,6 +365,7 @@ function App() {
     setTab("Grades");
   }
   function exitDemo() {
+    if (native) void bridge.setSchoolPaused({ paused: false }).catch(() => {});
     gate.current.reset();
     setDemo(false);
     setAccount(restore.current?.account ?? null);
@@ -627,12 +688,42 @@ function App() {
   function grades() {
     const grades = payload?.Grades;
     if (!grades) return empty();
-    const rows = grades.items.filter(
+    const semesterRows = grades.items.filter(
       (g) => !semester || g.semester === String(semester),
     );
+    const keys = gradeKeys(grades.items);
+    const newKeys = new Set(archive.activity?.newGradeIds ?? []);
+    const isNew = (g: Grade) => newKeys.has(keys[grades.items.indexOf(g)]);
+    const rows = semesterRows.filter((g) => !newGradesOnly || isNew(g));
+    const newCount = semesterRows.filter(isNew).length;
     const subjects = [...new Set(rows.map((g) => g.subject))].sort();
     return (
       <>
+        <div className="grade-filters">
+          <div className="filter-chips" aria-label={t("gradeDisplay")}>
+            <button
+              aria-pressed={!newGradesOnly}
+              className={!newGradesOnly ? "active" : ""}
+              onClick={() => setNewGradesOnly(false)}
+            >
+              {t("allGrades")}
+            </button>
+            <button
+              aria-pressed={newGradesOnly}
+              className={newGradesOnly ? "active" : ""}
+              onClick={() => setNewGradesOnly(true)}
+            >
+              {t("newSinceLogin")} <span aria-hidden="true">({newCount})</span>
+            </button>
+          </div>
+          <p className="muted">
+            {t(
+              archive.activity?.baselineReady
+                ? "newGradesHint"
+                : "newGradesBaseline",
+            )}
+          </p>
+        </div>
         <article className="card behaviour">
           <div className="section-toolbar">
             <h2>{t("behaviour")}</h2>
@@ -660,10 +751,11 @@ function App() {
           </div>
           <div className="summary-footer">
             <span>
-              {subjects.length} {t("subjects").toLowerCase()}
+              {new Set(semesterRows.map((g) => g.subject)).size}{" "}
+              {t("subjects").toLowerCase()}
             </span>
             <span>
-              {rows.length} {t("Grades").toLowerCase()}
+              {semesterRows.length} {t("Grades").toLowerCase()}
             </span>
           </div>
         </div>
@@ -702,18 +794,31 @@ function App() {
                   .map((g, i) => (
                     <button
                       key={i}
-                      className={"grade " + band(g.value)}
-                      aria-label={`${subject} ${g.value} · ${t("details")}`}
+                      className={
+                        "grade " + band(g.value) + (isNew(g) ? " is-new" : "")
+                      }
+                      aria-label={`${subject} ${g.value}${isNew(g) ? " · " + t("newGrade") : ""} · ${t("details")}`}
                       onClick={() => setSheet({ grade: g })}
                     >
                       {g.value}
+                      {isNew(g) && (
+                        <span className="grade-new-dot" aria-hidden="true" />
+                      )}
                     </button>
                   ))}
               </div>
             </article>
           ))}
         </div>
-        {!subjects.length && empty()}
+        {!subjects.length &&
+          (newGradesOnly ? (
+            <div className="empty">
+              <CheckCheck size={28} />
+              <h3>{t("noNewGrades")}</h3>
+            </div>
+          ) : (
+            empty()
+          ))}
       </>
     );
   }
@@ -1159,6 +1264,7 @@ function App() {
             ))}
           </div>
         </section>
+        <SchoolSettings school={school} t={t} demo={demo} account={account} />
         <UpdateSettings updates={updates} t={t} />
         <button className="wide secondary" onClick={() => void official()}>
           {t("official")}
@@ -1263,6 +1369,23 @@ function App() {
           </p>
         )}
         {status(error)}
+        {!demo && tab !== "Profile" && school.error && status(school.error)}
+        {!demo &&
+          account?.session &&
+          tab !== "Profile" &&
+          school.monitoring?.enabled &&
+          school.monitoring.permission !== "granted" && (
+            <div className="card school-permission">
+              <p>{t("schoolPermissionHint")}</p>
+              <button
+                className="text-button"
+                disabled={school.settingsBusy}
+                onClick={() => void school.configure(true, true)}
+              >
+                {t("allowNotifications")}
+              </button>
+            </div>
+          )}
         {!ready ? (
           <div className="empty" role="status">
             {t("loading")}

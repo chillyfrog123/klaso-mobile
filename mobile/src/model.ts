@@ -2,6 +2,7 @@ export type Tab =
   "Timetable" | "Grades" | "Attendance" | "Messages" | "Profile";
 export type Section = Exclude<Tab, "Profile"> | "Notices";
 export type Grade = {
+  id?: string;
   subject: string;
   value: string;
   category: string;
@@ -70,10 +71,21 @@ export type Payload = {
   Messages?: { items: Message[]; total: number };
   Notices?: Notice[];
 };
-export type Snapshot = { payload: Payload; updated: string };
+export type Activity = {
+  newGradeIds: string[];
+  baselineReady: boolean;
+  since?: string;
+  updated?: string;
+};
+export type Snapshot = {
+  payload: Payload;
+  updated: string;
+  activity?: Activity;
+};
 export type Archive = {
   snapshots: Record<string, Snapshot>;
   details: Record<string, Message>;
+  activity?: Activity;
 };
 export type Account = {
   owner: string;
@@ -82,6 +94,42 @@ export type Account = {
   authenticated?: boolean;
 };
 export const emptyArchive = (): Archive => ({ snapshots: {}, details: {} });
+// Keep this fallback identical to SchoolChanges.gradeKeys on Android. Occurrence
+// indices retain identical grades when older servers omit their stable IDs.
+export function gradeKeys(items: Grade[]) {
+  const occurrences = new Map<string, number>();
+  return items.map((grade) => {
+    const base = JSON.stringify([
+      grade.subject,
+      grade.value,
+      grade.category,
+      grade.date,
+      grade.teacher,
+      grade.semester,
+    ]);
+    const count = occurrences.get(base) ?? 0;
+    occurrences.set(base, count + 1);
+    return grade.id ? "id:" + grade.id : base + "#" + count;
+  });
+}
+export function mergeArchive(previous: Archive, incoming: Archive): Archive {
+  const snapshots = { ...previous.snapshots };
+  for (const [key, snapshot] of Object.entries(incoming.snapshots)) {
+    if (!snapshots[key] || snapshot.updated >= snapshots[key].updated)
+      snapshots[key] = snapshot;
+  }
+  const activity =
+    !previous.activity ||
+    (incoming.activity?.updated ?? incoming.snapshots.Grades?.updated ?? "") >=
+      (previous.activity.updated ?? previous.snapshots.Grades?.updated ?? "")
+      ? (incoming.activity ?? previous.activity)
+      : previous.activity;
+  return {
+    snapshots,
+    details: { ...previous.details, ...incoming.details },
+    activity,
+  };
+}
 export function keyFor(section: Section, week: string, page: number) {
   return section === "Timetable"
     ? `${section}:${week}`

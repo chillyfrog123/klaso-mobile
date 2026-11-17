@@ -12,7 +12,13 @@ export interface Bootstrap {
   accounts?: string[];
   account: Account | null;
   archive: Archive;
+  syncErrors?: string[];
 }
+export type Monitoring = {
+  enabled: boolean;
+  permission: "granted" | "denied" | "prompt";
+  background: boolean;
+};
 interface Bridge {
   bootstrap(): Promise<Bootstrap>;
   login(options: {
@@ -33,6 +39,16 @@ interface Bridge {
   detail(options: { owner: string; id: string }): Promise<{ message: Message }>;
   language(options: { language: string }): Promise<void>;
   official(): Promise<void>;
+  syncSchool(options: { owner: string }): Promise<Bootstrap>;
+  monitoring(): Promise<Monitoring>;
+  setMonitoring(options: {
+    enabled: boolean;
+    requestPermission?: boolean;
+  }): Promise<Monitoring>;
+  setSchoolPaused(options: { paused: boolean }): Promise<void>;
+  consumeNotification(): Promise<{
+    section?: "Grades" | "Messages" | "Timetable";
+  }>;
 }
 export const bridge = registerPlugin<Bridge>("Librus");
 export async function official() {

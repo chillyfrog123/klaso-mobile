@@ -1,4 +1,33 @@
 export const en = {
+  schoolNotifications: "School notifications",
+  schoolAutomatic: "Automatic checks and notifications",
+  schoolAutomaticHint:
+    "Refresh on opening and returning to the app, and every 5 minutes while it is open.",
+  schoolCategories:
+    "New messages, grades, substitutions and canceled lessons. Checks cover this week and next week.",
+  schoolBackgroundHint:
+    "Background checks run about every 15 minutes for the selected account. Android may delay them to save battery. Checks may use mobile data.",
+  schoolRememberHint:
+    "Keep the selected account signed in to check in the background. This session can refresh while the app is open.",
+  schoolPermissionHint:
+    "Allow Android notifications for new messages, grades and timetable changes. If blocked, enable them in Android app settings.",
+  allowNotifications: "Allow notifications",
+  schoolCheckNow: "Check school updates now",
+  schoolAndroidOnly:
+    "School notifications are available in the installed Android app.",
+  schoolDemoHint:
+    "School checks and notifications are paused during the offline demo.",
+  schoolSyncPartial:
+    "Some school updates could not be checked. Your saved data is still available; the app will try again.",
+  gradeDisplay: "Show grades",
+  allGrades: "All grades",
+  newSinceLogin: "New since last login",
+  newGrade: "New",
+  newGradesHint:
+    "New grades since your previous app session stay marked throughout this session. Averages include all grades in the selected semester.",
+  newGradesBaseline:
+    "The first successful check sets your starting point. New grades will be marked from the next check.",
+  noNewGrades: "No new grades since last login",
   appUpdates: "App updates",
   autoCheckUpdates: "Check automatically",
   autoCheckHint:
@@ -165,6 +194,35 @@ export const en = {
 };
 export type Label = keyof typeof en;
 export const pl: Record<Label, string> = {
+  schoolNotifications: "Powiadomienia szkolne",
+  schoolAutomatic: "Automatyczne sprawdzanie i powiadomienia",
+  schoolAutomaticHint:
+    "Odświeżanie przy otwarciu i powrocie do aplikacji oraz co 5 minut, gdy jest otwarta.",
+  schoolCategories:
+    "Nowe wiadomości, oceny, zastępstwa i odwołane lekcje. Sprawdzany jest bieżący i następny tydzień.",
+  schoolBackgroundHint:
+    "Sprawdzanie w tle odbywa się co około 15 minut dla wybranego konta. Android może je opóźnić, aby oszczędzać baterię. Może korzystać z danych komórkowych.",
+  schoolRememberHint:
+    "Zaznacz zapamiętanie wybranego konta, aby sprawdzać w tle. W tej sesji odświeżanie działa przy otwartej aplikacji.",
+  schoolPermissionHint:
+    "Zezwól na powiadomienia Androida o nowych wiadomościach, ocenach i zmianach planu. Jeśli są zablokowane, włącz je w ustawieniach aplikacji w Androidzie.",
+  allowNotifications: "Zezwól na powiadomienia",
+  schoolCheckNow: "Sprawdź teraz nowe dane szkolne",
+  schoolAndroidOnly:
+    "Powiadomienia szkolne są dostępne w zainstalowanej aplikacji na Androida.",
+  schoolDemoHint:
+    "Sprawdzanie danych i powiadomienia są wstrzymane podczas demonstracji offline.",
+  schoolSyncPartial:
+    "Nie udało się sprawdzić części danych. Zapisane dane są nadal dostępne; aplikacja spróbuje ponownie.",
+  gradeDisplay: "Pokaż oceny",
+  allGrades: "Wszystkie oceny",
+  newSinceLogin: "Nowe od ostatniego logowania",
+  newGrade: "Nowa",
+  newGradesHint:
+    "Nowe oceny od poprzedniej sesji pozostają oznaczone przez całą sesję. Średnie uwzględniają wszystkie oceny w wybranym semestrze.",
+  newGradesBaseline:
+    "Pierwsze udane sprawdzenie ustala punkt początkowy. Nowe oceny będą oznaczane od kolejnego sprawdzenia.",
+  noNewGrades: "Brak nowych ocen od ostatniego logowania",
   appUpdates: "Aktualizacje aplikacji",
   autoCheckUpdates: "Sprawdzaj automatycznie",
   autoCheckHint:

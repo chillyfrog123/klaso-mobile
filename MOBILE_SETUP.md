@@ -2,12 +2,12 @@
 
 ## Install the built app
 
-**Built and verified:** `mobile/artifacts/klaso-mobile-0.1.4-arm64-debug.apk` (7.6 MB), version 0.1.4 / version code 5, ARM64, Android 7 / API 24 or later. APK v2 signature and 16 KB ZIP alignment checks passed; its signing certificate matches v0.1.3. Copy it to an ARM64 Android phone (Android 7 / API 24 or later), open it and allow installation from your file manager when Android asks. This is a debug-signed development build, not a Play Store release. No account or school data is bundled.
+**Built and verified:** `mobile/artifacts/klaso-mobile-0.1.5-arm64-debug.apk` (8.1 MB), version 0.1.5 / version code 6, ARM64, Android 7 / API 24 or later. APK signature and 16 KB ZIP/native alignment checks passed; its signing certificate matches v0.1.4. Copy it to an ARM64 Android phone (Android 7 / API 24 or later), open it and allow installation from your file manager when Android asks. This is a debug-signed development build, not a Play Store release. No account or school data is bundled.
 
 Alternatively, with USB debugging enabled:
 
 ```sh
-adb install -r mobile/artifacts/klaso-mobile-0.1.4-arm64-debug.apk
+adb install -r mobile/artifacts/klaso-mobile-0.1.5-arm64-debug.apk
 ```
 
 Open **Profile → Explore offline demo** to explore fictional data without contacting Librus. In the installed Android app, Profile also supports real Synergia login. Opening a real message can mark it read remotely. Use **Profile → Open official Librus website** if Librus asks for CAPTCHA, account setup, a password change or additional verification. Complete those steps yourself, then sign in again.
@@ -15,6 +15,8 @@ Open **Profile → Explore offline demo** to explore fictional data without cont
 Android uses Material You styling; iPhone uses Liquid Glass styling. The browser preview defaults to Android; add `?platform=ios` to preview the iPhone appearance. An iOS native build is not included yet.
 
 English is the default. Profile saves English / Polski and Cobalt / Emerald / Violet / Amber. School-provided text is not translated. The green grade highlight respects the system reduced-motion preference.
+
+**School notifications:** Profile → School notifications → Allow notifications enables Android alerts for new messages, grades, substitutions and canceled lessons. Automatic checks run on opening/resuming and every five minutes while visible. Keep the selected account signed in for background checks about every 15 minutes; Android may delay them. The first check establishes a baseline silently. Grades → New since last login filters grades detected since the previous app session without changing the averages. Refreshes keep those markers throughout the session. Demo mode pauses school checks.
 
 **App updates:** Profile → App updates includes Check for updates, automatic checks, and an Automatic updates switch that is off by default. Checks run on launch/resume; automatic mode downloads updates and opens Android's installer while the app is open. Android asks you to confirm installation and may first ask you to allow installs from Klaso Mobile. Checks/downloads contact the public GitHub release feed and may use mobile data. Future update APKs must use the same signing key and a higher version name and version code. See `MOBILE_ARCHITECTURE.md` for the release asset contract. App updates have been available since v0.1.3.
 
@@ -78,4 +80,4 @@ See `MOBILE_ARCHITECTURE.md` for native storage, session recovery, cache behavio
 
 
 
-Version 0.1.4 changes and validation are documented in `CHANGELOG_0.1.4.md`. The repository is https://github.com/chillyfrog123/klaso-mobile. Saved accounts are kept in the encrypted `accounts-v1` registry; the active marker stores only the selected owner. Switching restores that account lazily and displays its encrypted cache.
+Version 0.1.5 changes and validation are documented in `CHANGELOG_0.1.5.md` and `MOBILE_VALIDATION.md`. The repository is https://github.com/chillyfrog123/klaso-mobile. Saved accounts are kept in the encrypted `accounts-v1` registry; the active marker stores only the selected owner. Switching restores that account lazily and displays its encrypted cache.
