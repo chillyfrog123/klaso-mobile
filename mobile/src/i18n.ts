@@ -1,4 +1,9 @@
 export const en = {
+  selectedText: "Selected text",
+  copy: "Copy",
+  share: "Share",
+  copyFailed: "Could not copy the text. Try again.",
+  shareFailed: "Could not share the text. Try again.",
   schoolNotifications: "School notifications",
   schoolAutomatic: "Automatic checks and notifications",
   schoolAutomaticHint:
@@ -194,6 +199,11 @@ export const en = {
 };
 export type Label = keyof typeof en;
 export const pl: Record<Label, string> = {
+  selectedText: "Zaznaczony tekst",
+  copy: "Kopiuj",
+  share: "Udostępnij",
+  copyFailed: "Nie udało się skopiować tekstu. Spróbuj ponownie.",
+  shareFailed: "Nie udało się udostępnić tekstu. Spróbuj ponownie.",
   schoolNotifications: "Powiadomienia szkolne",
   schoolAutomatic: "Automatyczne sprawdzanie i powiadomienia",
   schoolAutomaticHint:

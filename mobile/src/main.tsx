@@ -54,6 +54,7 @@ import {
 } from "./model";
 import { SchoolSettings, useSchoolMonitor } from "./SchoolMonitor";
 import { Choice } from "./Choice";
+import { TextSelection, dismissTextSelection } from "./TextSelection";
 import {
   UpdateSettings,
   UpdatePrompt,
@@ -313,6 +314,7 @@ function App() {
       choice.close();
       return true;
     }
+    if (dismissTextSelection()) return true;
     if (about) {
       setAbout(false);
       return true;
@@ -1425,6 +1427,7 @@ function App() {
         })}
       </nav>
       <UpdatePrompt updates={updates} t={t} />
+      <TextSelection t={t} />
       <dialog
         ref={dialog}
         className="detail-sheet"

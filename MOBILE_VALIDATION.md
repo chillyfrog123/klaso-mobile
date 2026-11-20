@@ -1,3 +1,14 @@
+# Text-selection menu — 20 November 2026
+
+Local debug preview: `mobile/artifacts/klaso-mobile-text-selection-debug.apk`, version 0.1.5 / version code 6, 8,354,838 bytes. SHA-256: `cb64b2794db0d1f67eebaabd04dfe812a94b3971bf6ae511211184b44c45e9ee`. No release was published.
+
+- Text selection uses an in-app trigger and the same themed `.choice` dialog as language/theme preferences. The native range remains adjustable until the user opens the actions. Copy and Share use the captured text; Select all stays within the message body. Back/Escape dismiss selection before navigating away. Editable fields retain their standard menus.
+- The splash drawable now uses `android:windowBackground`, and the runtime theme clears the inherited general background that could draw the splash logo inside native popups.
+- TypeScript/Vite production build and Capacitor sync passed. All 28 frontend unit tests and 29 Playwright scenarios passed. Eight selection regressions cover actual browser clipboard contents, scoped Select all, modal dismissal, native-event range refinement, Back/Escape, sharing, editable fields, and Polish dark 320 px layout. Native events and the external share sheet are simulated in browser tests.
+- All 18 Android JVM tests, APK assembly and Android lint passed (zero errors, four tool/resource warnings). APK v2 signature verification and 16 KB ZIP alignment passed. The packaged CSS/JS filenames match the final web build. The existing ARM64 Rust library was reused; no Rust source changed.
+- Dark/amber Polish and light English menu/trigger screenshots were visually reviewed at 320 and 390 px. Previews are bounded and actions remain accessible.
+- No Android device was connected. Actual WebView long-press callbacks, handle dragging and native-toolbar suppression on the user's device, native clipboard/share actions, and installation remain unverified.
+
 # School notifications and room parsing — 17 November 2026
 
 Build: `mobile/artifacts/klaso-mobile-0.1.5-arm64-debug.apk`, version 0.1.5 / version code 6, 8,072,131 bytes. SHA-256: `4b428f344f0a00a01a999407a7921113a948b83a14b230a9ee648968e9e617ed`.
