@@ -455,6 +455,9 @@ main {
   margin-left: auto;
   color: var(--muted);
 }
+.timetable {
+  touch-action: pan-y pinch-zoom;
+}
 .week-toolbar {
   display: flex;
   align-items: center;
@@ -592,6 +595,46 @@ main {
 }
 .lesson-card > svg {
   color: var(--muted);
+}
+.lesson-change {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+  align-items: stretch;
+  margin: 6px 0;
+}
+.lesson-change > svg {
+  place-self: center;
+  color: var(--muted);
+}
+.lesson-change .lesson-card {
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 10px;
+}
+.lesson-change .lesson-time {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 4px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+.lesson-change .lesson-time strong,
+.lesson-change .lesson-time span {
+  font-size: 11px;
+}
+.lesson-change .lesson-time strong:not(:empty) + span:not(:empty)::before {
+  content: "– ";
+}
+.lesson-origin-date {
+  flex-basis: 100%;
+}
+.lesson-change .lesson-info h3 {
+  font-size: 14px;
 }
 .canceled {
   background: #fbe3e6;
@@ -881,31 +924,49 @@ main {
 .attendance-day .section-toolbar h2 {
   font-size: 16px;
 }
+.attendance-day .section-toolbar h2::first-letter {
+  text-transform: uppercase;
+}
 .attendance-day .section-toolbar small {
   color: var(--muted);
+  white-space: nowrap;
+}
+.attendance-day > .card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 6px;
+  padding: 8px;
 }
 .attendance-row {
+  min-width: 0;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(var(--accent-rgb), 0.04);
+  overflow-wrap: anywhere;
+}
+.attendance-period {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 17px;
-  border-bottom: 1px solid #edf0f5;
+  gap: 4px;
 }
-.attendance-row:last-child {
-  border: 0;
-}
+.attendance-period > span:last-child,
 .attendance-row p {
-  font-size: 11px;
   color: var(--muted);
-  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.attendance-row h3 {
+  margin: 4px 0 2px;
+  font-size: 12px;
+  line-height: 1.25;
 }
 .attendance-code {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  font-size: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
   background: #edf0f5;
@@ -1284,6 +1345,13 @@ dd {
   .week-view .lesson-time {
     padding-right: 8px;
     min-width: 49px;
+  }
+  .week-view .lesson-change .lesson-card {
+    gap: 4px;
+  }
+  .week-view .lesson-change .lesson-time {
+    min-width: 0;
+    padding: 0;
   }
   .week-view .lesson-info h3 {
     font-size: 13px;

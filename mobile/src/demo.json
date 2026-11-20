@@ -701,8 +701,17 @@
         "canceled": false,
         "date": "2026-11-10",
         "from": "10:00",
-        "note": "Zmiana sali na 103",
+        "note": "Zastępstwo za język niemiecki",
         "number": "3",
+        "original": {
+          "date": "2026-11-10",
+          "from": "10:00",
+          "number": "3",
+          "room": "204",
+          "subject": "Język niemiecki",
+          "teacher": "Maria Przykładowa",
+          "to": "10:45"
+        },
         "room": "103",
         "subject": "Biologia",
         "substitution": true,
@@ -791,6 +800,18 @@
         "subject": "Matematyka",
         "substitution": false,
         "teacher": "Jan Przykładowy",
+        "to": "11:45"
+      },
+      {
+        "canceled": false,
+        "date": "2026-11-11",
+        "from": "11:00",
+        "note": "",
+        "number": "4",
+        "room": "209",
+        "subject": "Fizyka",
+        "substitution": false,
+        "teacher": "Anna Przykładowa",
         "to": "11:45"
       },
       {

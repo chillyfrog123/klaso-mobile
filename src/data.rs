@@ -178,6 +178,18 @@ pub struct Lesson {
     pub canceled: bool,
     pub substitution: bool,
     pub note: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub original: Option<OriginalLesson>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct OriginalLesson {
+    pub date: String,
+    pub number: String,
+    pub subject: String,
+    pub teacher: String,
+    pub room: String,
+    pub from: String,
+    pub to: String,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Message {
@@ -457,6 +469,43 @@ fn resolve_classroom(candidates: &[&Value], rooms: &HashMap<String, String>) -> 
     fallback.unwrap_or_else(|| "—".to_owned())
 }
 
+fn original_lesson(
+    value: &Value,
+    lesson: &Lesson,
+    subjects: &HashMap<String, String>,
+    teachers: &HashMap<String, String>,
+    rooms: &HashMap<String, String>,
+) -> Option<OriginalLesson> {
+    let subject = resolve(&value["OrgSubject"], subjects, "");
+    let teacher = resolve(&value["OrgTeacher"], teachers, "");
+    let room = resolve_classroom(&[&value["OrgClassroom"]], rooms);
+    let field = |key, fallback: &str| {
+        let text = text(value, key);
+        if text.is_empty() {
+            fallback.to_owned()
+        } else {
+            text
+        }
+    };
+    let original = OriginalLesson {
+        date: field("OrgDate", &lesson.date),
+        number: field("OrgLessonNo", &lesson.number),
+        subject,
+        teacher,
+        room,
+        from: field("OrgHourFrom", &lesson.from),
+        to: field("OrgHourTo", &lesson.to),
+    };
+    (!original.subject.is_empty()
+        || !original.teacher.is_empty()
+        || original.room != "—"
+        || original.date != lesson.date
+        || original.number != lesson.number
+        || original.from != lesson.from
+        || original.to != lesson.to)
+        .then_some(original)
+}
+
 pub fn timetable(
     value: &Value,
     subjects: &HashMap<String, String>,
@@ -497,7 +546,7 @@ pub fn timetable(
             && (value.get("Subject").is_some() || value.get("Lesson").is_some())
         {
             let no = text(value, "LessonNo");
-            out.push(Lesson {
+            let mut lesson = Lesson {
                 date: date.into(),
                 number: if no.is_empty() {
                     number.to_string()
@@ -512,7 +561,12 @@ pub fn timetable(
                 canceled: flag(&value["IsCanceled"]),
                 substitution: flag(&value["IsSubstitutionClass"]),
                 note: text(value, "SubstitutionNote"),
-            });
+                original: None,
+            };
+            if !lesson.canceled {
+                lesson.original = original_lesson(value, &lesson, subjects, teachers, rooms);
+            }
+            out.push(lesson);
         }
     }
     for (date, slots) in days {
@@ -688,5 +742,34 @@ mod tests {
             .any(|l| l.subject == "Matematyka" && l.canceled));
         assert!(lessons.iter().any(|l| l.substitution));
         assert!(timetable(&json!({"wrong":[]}), &names, &names, &names).is_err());
+    }
+
+    #[test]
+    fn timetable_resolves_original_substitution_details_and_reads_old_cache() {
+        let payload = json!({"Timetable":{"2026-11-10":[[{
+            "LessonNo": "3", "HourFrom": "10:00", "HourTo": "10:45",
+            "Subject": {"Name":"Biologia"}, "IsSubstitutionClass": true,
+            "OrgSubject": {"Id":"5"}, "OrgTeacher": {"Id":"6"}, "OrgClassroom": {"Id":"7"},
+            "OrgDate": "2026-11-09", "OrgLessonNo": 2, "OrgHourFrom": "09:00", "OrgHourTo": "09:45"
+        }]]}});
+        let subjects = HashMap::from([("5".into(), "Matematyka".into())]);
+        let teachers = HashMap::from([("6".into(), "Anna Przykładowa".into())]);
+        let rooms = HashMap::from([("7".into(), "Pracownia techniczna".into())]);
+        let lessons = timetable(&payload, &subjects, &teachers, &rooms).unwrap();
+        let original = lessons[0].original.as_ref().unwrap();
+        assert_eq!(original.subject, "Matematyka");
+        assert_eq!(original.teacher, "Anna Przykładowa");
+        assert_eq!(original.room, "Pracownia techniczna");
+        assert_eq!(original.date, "2026-11-09");
+        assert_eq!(original.number, "2");
+        assert_eq!(original.from, "09:00");
+        assert_eq!(original.to, "09:45");
+
+        let mut cached = serde_json::to_value(&lessons[0]).unwrap();
+        cached.as_object_mut().unwrap().remove("original");
+        assert!(serde_json::from_value::<Lesson>(cached)
+            .unwrap()
+            .original
+            .is_none());
     }
 }

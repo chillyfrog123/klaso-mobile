@@ -16,6 +16,7 @@ import {
   X,
   Paperclip,
   ArrowLeft,
+  ArrowRight,
   BookOpen,
   SlidersHorizontal,
   LogOut,
@@ -45,6 +46,7 @@ import {
   monday,
   addDays,
   keyFor,
+  lessonCards,
   band,
   attendanceDays,
   attendanceType,
@@ -117,6 +119,9 @@ function App() {
   const [week, setWeek] = useState(monday());
   const [day, setDay] = useState(Math.min((new Date().getDay() + 6) % 7, 6));
   const [viewWeek, setViewWeek] = useState(false);
+  const timetableTouch = useRef<{ id: number; x: number; y: number } | null>(
+    null,
+  );
   const [semester, setSemester] = useState(0);
   const [gradeView, setGradeView] = useState<
     "all" | "newSinceLogin" | "newThisWeek"
@@ -185,7 +190,7 @@ function App() {
   visibleView.current = `${tab}:${cacheKey}`;
   const snapshot = archive.snapshots[cacheKey];
   const payload = snapshot?.payload;
-  const date = (value: string, full = false) => {
+  const date = (value: string, full = false, withWeekday = false) => {
     if (!value) return "—";
     const d = new Date(
       value.length === 10 ? value + "T12:00:00" : value.replace(" ", "T"),
@@ -195,7 +200,12 @@ function App() {
       : new Intl.DateTimeFormat(
           lang === "pl" ? "pl-PL" : "en-GB",
           full
-            ? { day: "numeric", month: "long", year: "numeric" }
+            ? {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                weekday: withWeekday ? "long" : undefined,
+              }
             : { day: "numeric", month: "short" },
         ).format(d);
   };
@@ -567,12 +577,84 @@ function App() {
       )}
     </article>
   );
+  function lessonCard(
+    lesson: Lesson,
+    status: "canceled" | "substitution" | "",
+    side?: "previousLesson" | "newLesson",
+    showDate = false,
+  ) {
+    const subject = lesson.subject || t("unknown");
+    const showStatus =
+      status && (status === "canceled" || side !== "previousLesson");
+    return (
+      <button
+        className={`lesson-card ${status}`}
+        onClick={() => setSheet({ lesson })}
+      >
+        {side && <span className="sr-only">{t(side)}</span>}
+        <div className="lesson-time">
+          <strong>{lesson.from}</strong>
+          <span>{lesson.to}</span>
+          {showDate && (
+            <span className="lesson-origin-date">{date(lesson.date)}</span>
+          )}
+        </div>
+        <div className="lesson-info">
+          <span className="lesson-number">
+            {t("lesson")} {lesson.number}
+          </span>
+          <h3>{subject}</h3>
+          {(lesson.teacher || lesson.room) && (
+            <p className="lesson-meta">
+              {lesson.teacher && <span>{lesson.teacher}</span>}
+              {lesson.room && <span aria-label={t("room")}>{lesson.room}</span>}
+            </p>
+          )}
+          {showStatus && <b>{t(status)}</b>}
+        </div>
+        {!side && <ChevronRight size={18} />}
+      </button>
+    );
+  }
+  function finishTimetableSwipe(event: React.TouchEvent) {
+    const start = timetableTouch.current;
+    timetableTouch.current = null;
+    if (!start || event.touches.length) return;
+    const end = Array.from(event.changedTouches).find(
+      (touch) => touch.identifier === start.id,
+    );
+    if (!end) return;
+    const horizontal = end.clientX - start.x;
+    const vertical = end.clientY - start.y;
+    if (
+      Math.abs(horizontal) < 48 ||
+      Math.abs(horizontal) < Math.abs(vertical) * 1.5
+    )
+      return;
+    const next = day + (horizontal < 0 ? 1 : -1);
+    if (next < 0 || next > 6) {
+      setWeek((previous) => addDays(previous, next < 0 ? -7 : 7));
+    }
+    setDay((next + 7) % 7);
+    setViewWeek(false);
+  }
   function timetable() {
     const lessons = payload?.Timetable;
-    if (!lessons) return empty();
+    if (!lessons && !account && !demo) return empty();
     const days = Array.from({ length: 7 }, (_, i) => addDays(week, i));
     return (
-      <>
+      <div
+        className="timetable"
+        onTouchStart={(event) => {
+          const touch = event.touches[0];
+          timetableTouch.current =
+            event.touches.length === 1
+              ? { id: touch.identifier, x: touch.clientX, y: touch.clientY }
+              : null;
+        }}
+        onTouchEnd={finishTimetableSwipe}
+        onTouchCancel={() => (timetableTouch.current = null)}
+      >
         <div className="week-toolbar glass">
           <button
             aria-label={t("previousWeek")}
@@ -622,70 +704,72 @@ function App() {
                 }).format(new Date(d + "T12:00:00"))}
               </span>
               <strong>{Number(d.slice(-2))}</strong>
-              <i className={lessons.some((l) => l.date === d) ? "dot" : ""} />
+              <i className={lessons?.some((l) => l.date === d) ? "dot" : ""} />
             </button>
           ))}
         </div>
-        <div className={viewWeek ? "days week-view" : "days"}>
-          {days.map((d, i) => {
-            const rows = lessons.filter((l) => l.date === d);
-            return (
-              <section
-                key={d}
-                className={"day-column " + (day !== i ? "inactive-day" : "")}
-              >
-                <h2>
-                  {new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en", {
-                    weekday: "long",
-                  }).format(new Date(d + "T12:00:00"))}
-                  <span>{date(d)}</span>
-                </h2>
-                {!rows.length ? (
-                  <div className="day-off">
-                    <CalendarDays size={24} />
-                    <strong>{t("dayOff")}</strong>
-                    <p>{t("noLessons")}</p>
-                  </div>
-                ) : (
-                  rows.map((l, index) => (
-                    <button
-                      key={index}
-                      className={
-                        "lesson-card " +
-                        (l.canceled
-                          ? "canceled"
-                          : l.substitution
-                            ? "substitution"
-                            : "")
-                      }
-                      onClick={() => setSheet({ lesson: l })}
-                    >
-                      <div className="lesson-time">
-                        <strong>{l.from}</strong>
-                        <span>{l.to}</span>
-                      </div>
-                      <div className="lesson-info">
-                        <span className="lesson-number">
-                          {t("lesson")} {l.number}
-                        </span>
-                        <h3>{l.subject}</h3>
-                        <p className="lesson-meta">
-                          <span>{l.teacher}</span>
-                          <span aria-label={t("room")}>{l.room}</span>
-                        </p>
-                        {(l.canceled || l.substitution) && (
-                          <b>{t(l.canceled ? "canceled" : "substitution")}</b>
-                        )}
-                      </div>
-                      <ChevronRight size={18} />
-                    </button>
-                  ))
-                )}
-              </section>
-            );
-          })}
-        </div>
-      </>
+        {lessons ? (
+          <div className={viewWeek ? "days week-view" : "days"}>
+            {days.map((d, i) => {
+              const rows = lessonCards(lessons.filter((l) => l.date === d));
+              return (
+                <section
+                  key={d}
+                  className={"day-column " + (day !== i ? "inactive-day" : "")}
+                >
+                  <h2>
+                    {new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en", {
+                      weekday: "long",
+                    }).format(new Date(d + "T12:00:00"))}
+                    <span>{date(d)}</span>
+                  </h2>
+                  {!rows.length ? (
+                    <div className="day-off">
+                      <CalendarDays size={24} />
+                      <strong>{t("dayOff")}</strong>
+                      <p>{t("noLessons")}</p>
+                    </div>
+                  ) : (
+                    rows.map(({ lesson, previous, change }, index) =>
+                      previous ? (
+                        <div className="lesson-change" key={index}>
+                          {lessonCard(
+                            previous,
+                            change === "substitution"
+                              ? "substitution"
+                              : "canceled",
+                            "previousLesson",
+                            previous.date !== lesson.date,
+                          )}
+                          <ArrowRight size={16} aria-hidden="true" />
+                          {lessonCard(
+                            lesson,
+                            change === "substitution" ? "substitution" : "",
+                            "newLesson",
+                          )}
+                        </div>
+                      ) : (
+                        <React.Fragment key={index}>
+                          {lessonCard(
+                            lesson,
+                            lesson.canceled
+                              ? "canceled"
+                              : lesson.substitution
+                                ? "substitution"
+                                : "",
+                          )}
+                        </React.Fragment>
+                      ),
+                    )
+                  )}
+                </section>
+              );
+            })}
+          </div>
+        ) : (
+          empty()
+        )}
+      </div>
     );
   }
   function grades() {
@@ -898,7 +982,7 @@ function App() {
         {days.map(([dateKey, rows]) => (
           <section className="attendance-day" key={dateKey}>
             <div className="section-toolbar">
-              <h2>{date(dateKey, true)}</h2>
+              <h2>{date(dateKey, true, true)}</h2>
               <small>
                 {rows.length} {t("entries")}
               </small>
@@ -906,22 +990,26 @@ function App() {
             <div className="card">
               {[...rows]
                 .sort((a, b) => Number(a.lesson) - Number(b.lesson))
-                .map((a, i) => (
-                  <div className="attendance-row" key={i}>
-                    <span
-                      className={"attendance-code type-" + attendanceType(a)}
-                      title={t(labels[attendanceType(a)])}
-                    >
-                      {codes[attendanceType(a)]}
-                    </span>
-                    <div>
+                .map((a, i) => {
+                  const type = attendanceType(a);
+                  return (
+                    <div className="attendance-row" key={i}>
+                      <div className="attendance-period">
+                        <span
+                          className={"attendance-code type-" + type}
+                          title={t(labels[type])}
+                        >
+                          {codes[type]}
+                        </span>
+                        <span>
+                          {t("lesson")} {a.lesson}
+                        </span>
+                      </div>
                       <h3>{a.subject}</h3>
-                      <p>
-                        {t("lesson")} {a.lesson} · {a.kind}
-                      </p>
+                      <p>{a.kind}</p>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </section>
         ))}
@@ -1502,7 +1590,7 @@ function App() {
         {sheet?.lesson && (
           <>
             <span className="eyebrow">{t("lessonDetails")}</span>
-            <h2>{sheet.lesson.subject}</h2>
+            <h2>{sheet.lesson.subject || t("unknown")}</h2>
             <dl>
               {(["date", "teacher", "room", "time", "note"] as const).map(
                 (field) => (

@@ -44,7 +44,73 @@ export type Lesson = {
   canceled: boolean;
   substitution: boolean;
   note: string;
+  original?: Pick<
+    Lesson,
+    "date" | "number" | "subject" | "teacher" | "room" | "from" | "to"
+  >;
 };
+
+export function lessonCards(lessons: Lesson[]) {
+  const slots = new Map<string, Lesson[]>();
+  for (const lesson of lessons) {
+    const key = JSON.stringify([lesson.date, lesson.number]);
+    const slot = slots.get(key) ?? [];
+    slot.push(lesson);
+    slots.set(key, slot);
+  }
+
+  const paired = new Set<Lesson>();
+  const cards = lessons.map((lesson) => {
+    if (lesson.canceled) return { lesson };
+    const { original } = lesson;
+    const sameTime = (other: Pick<Lesson, "from" | "to">) =>
+      (!lesson.from || !other.from || lesson.from === other.from) &&
+      (!lesson.to || !other.to || lesson.to === other.to);
+    const originalInSlot =
+      original &&
+      original.date === lesson.date &&
+      original.number === lesson.number &&
+      sameTime(original);
+    const slot = slots.get(JSON.stringify([lesson.date, lesson.number]));
+    // Without an explicit link, don't pair lessons in a slot with parallel entries.
+    const canceled =
+      slot?.length === 2
+        ? slot.find(
+            (other) =>
+              other.canceled &&
+              sameTime(other) &&
+              (!originalInSlot ||
+                ((!original.subject || original.subject === other.subject) &&
+                  (!original.teacher || original.teacher === other.teacher))),
+          )
+        : undefined;
+    if (canceled) paired.add(canceled);
+    if (canceled && (!original || !originalInSlot)) {
+      const change =
+        lesson.substitution && !original ? "substitution" : "replacement";
+      return { lesson, previous: canceled, change };
+    }
+    if (original) {
+      const previous: Lesson = {
+        ...original,
+        canceled: false,
+        substitution: false,
+        note: canceled?.note ?? "",
+      };
+      if (canceled) {
+        previous.subject ||= canceled.subject;
+        previous.teacher ||= canceled.teacher;
+        previous.room =
+          original.room && original.room !== "—"
+            ? original.room
+            : canceled.room;
+      }
+      return { lesson, previous, change: "substitution" as const };
+    }
+    return { lesson };
+  });
+  return cards.filter(({ lesson }) => !paired.has(lesson));
+}
 export type Message = {
   id: string;
   title: string;

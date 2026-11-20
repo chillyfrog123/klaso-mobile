@@ -1,4 +1,5 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
+import { addDays } from "./model";
 import type {
   Account,
   Archive,
@@ -72,12 +73,13 @@ export async function demoData(
     Payload
   >;
   const copy = structuredClone(data);
-  const base = new Date("2026-11-09T12:00:00");
-  const shift = new Date(week + "T12:00:00").getTime() - base.getTime();
-  for (const lesson of copy.Timetable.Timetable ?? [])
-    lesson.date = new Date(
-      new Date(lesson.date + "T12:00:00").getTime() + shift,
-    ).toLocaleDateString("en-CA");
+  const shift = (Date.parse(week) - Date.parse("2026-11-09")) / 86_400_000;
+  for (const lesson of copy.Timetable.Timetable ?? []) {
+    lesson.date = addDays(lesson.date, shift);
+    if (lesson.original) {
+      lesson.original.date = addDays(lesson.original.date, shift);
+    }
+  }
   return copy;
 }
 

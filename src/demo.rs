@@ -56,6 +56,7 @@ pub fn payloads(week: NaiveDate) -> HashMap<Section, Payload> {
                 to: format!("{:02}:45", 8 + hour),
                 canceled: day == 2 && hour == 3,
                 substitution: day == 1 && hour == 2,
+                original: None,
                 note: if day == 1 && hour == 2 {
                     "Zmiana sali na 103".into()
                 } else {

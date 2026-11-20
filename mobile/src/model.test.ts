@@ -7,7 +7,9 @@ import {
   gradeKeys,
   mergeArchive,
   gradesThisWeek,
+  lessonCards,
   type Grade,
+  type Lesson,
 } from "./model";
 import { en, pl } from "./i18n";
 describe("grade boundaries", () => {
@@ -57,6 +59,49 @@ it("partitions week and page caches", () => {
     keyFor("Timetable", "2026-11-16", 1),
   );
   expect(keyFor("Messages", "", 1)).not.toBe(keyFor("Messages", "", 2));
+});
+it("pairs replacements and explicit substitutions while preserving ambiguous parallel lessons", () => {
+  const lesson: Lesson = {
+    date: "2026-11-17",
+    number: "2",
+    from: "09:00",
+    to: "09:45",
+    subject: "Physics",
+    teacher: "New teacher",
+    room: "B-201",
+    canceled: false,
+    substitution: false,
+    note: "",
+  };
+  const canceled = { ...lesson, canceled: true, subject: "Math" };
+  const parallel = { ...lesson, subject: "German" };
+  const substitution = { ...lesson, substitution: true, original: canceled };
+  expect(lessonCards([lesson, canceled])).toEqual([
+    { lesson, previous: canceled, change: "replacement" },
+  ]);
+  expect(lessonCards([canceled, substitution])).toMatchObject([
+    {
+      lesson: substitution,
+      previous: { subject: "Math" },
+      change: "substitution",
+    },
+  ]);
+  const cachedSubstitution = { ...lesson, substitution: true };
+  expect(lessonCards([canceled, cachedSubstitution])).toEqual([
+    { lesson: cachedSubstitution, previous: canceled, change: "substitution" },
+  ]);
+  const movedLesson = {
+    ...substitution,
+    original: { ...lesson, number: "1", from: "08:00", to: "08:45" },
+  };
+  expect(lessonCards([canceled, movedLesson])).toEqual([
+    { lesson: movedLesson, previous: canceled, change: "replacement" },
+  ]);
+  expect(lessonCards([lesson, parallel, canceled])).toEqual(
+    [lesson, parallel, canceled].map((entry) => ({ lesson: entry })),
+  );
+  expect(lessonCards([canceled, { ...lesson, from: "10:00" }])).toHaveLength(2);
+  expect(lessonCards([{ ...lesson, substitution: true }])).toHaveLength(1);
 });
 it("has identical translation keys", () =>
   expect(Object.keys(en).sort()).toEqual(Object.keys(pl).sort()));

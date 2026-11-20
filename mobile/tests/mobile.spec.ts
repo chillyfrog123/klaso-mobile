@@ -40,13 +40,40 @@ test("phone grades, translated preferences and accessible details", async ({
 test("timetable, full-day attendance filtering, inbox and notices", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
   await demo(page);
   await page.getByRole("button", { name: "Timetable", exact: true }).click();
+  await page.locator(".day-picker button").first().click();
   await expect(page.locator(".lesson-card:visible").first()).toBeVisible();
   await page.locator(".day-picker button").nth(1).click();
-  await expect(page.locator(".lesson-card.substitution")).toBeVisible();
+  const substitution = page.locator(".lesson-change:visible");
+  await expect(substitution.locator("button.substitution")).toHaveCount(2);
+  await expect(substitution.locator(":scope > svg")).toBeVisible();
+  const previous = substitution.getByRole("button", {
+    name: /Previous lesson/,
+  });
+  const current = substitution.getByRole("button", { name: /New lesson/ });
+  await expect(previous).toContainText("Język niemiecki");
+  await expect(previous).toContainText("204");
+  await expect(current).toContainText("Biologia");
+  await expect(current).toContainText("103");
+  expect((await previous.boundingBox())?.width).toBe(
+    (await current.boundingBox())?.width,
+  );
+  await previous.click();
+  await expect(page.getByRole("dialog")).toContainText("204");
+  await page.keyboard.press("Escape");
+  await current.click();
+  await expect(page.getByRole("dialog")).toContainText("103");
+  await page.keyboard.press("Escape");
   await page.locator(".day-picker button").nth(2).click();
-  await expect(page.locator(".lesson-card.canceled")).toBeVisible();
+  const replacement = page.locator(".lesson-change:visible");
+  await expect(replacement.locator(".lesson-card.canceled")).toContainText(
+    "Matematyka",
+  );
+  await expect(
+    replacement.locator(".lesson-card:not(.canceled):not(.substitution)"),
+  ).toContainText("Fizyka");
   await page.locator(".day-picker button").nth(6).click();
   await expect(
     page.locator(".day-column:not(.inactive-day) .day-off strong"),
@@ -58,6 +85,21 @@ test("timetable, full-day attendance filtering, inbox and notices", async ({
     .getByRole("button", { name: "EA Excused absence", exact: true })
     .click();
   await expect(page.locator(".attendance-row .type-0").first()).toBeVisible();
+  await expect(page.locator(".attendance-day h2").first()).toContainText(
+    "Monday",
+  );
+  expect(
+    await page
+      .locator(".attendance-day > .card")
+      .first()
+      .evaluate((card) => {
+        const tiles = card.querySelectorAll<HTMLElement>(".attendance-row");
+        return (
+          card.scrollWidth === card.clientWidth &&
+          tiles[0].offsetTop < tiles[tiles.length - 1].offsetTop
+        );
+      }),
+  ).toBe(true);
   await page.getByRole("button", { name: "Messages", exact: true }).click();
   await page.locator(".mail-card").first().click();
   await expect(page.locator(".reader")).toBeVisible();
@@ -69,6 +111,52 @@ test("timetable, full-day attendance filtering, inbox and notices", async ({
   await expect(page.locator("details[open] .message-body")).toContainText(
     "Zapraszamy",
   );
+});
+test("touch swipes move one timetable day across the week boundary", async ({
+  page,
+}) => {
+  await demo(page);
+  await page.getByRole("button", { name: "Timetable", exact: true }).click();
+  const days = page.locator(".day-picker button");
+  await days.nth(5).click();
+  const week = page.locator(".week-toolbar strong");
+  const initialWeek = await week.textContent();
+  const touch = await page.context().newCDPSession(page);
+  await touch.send("Emulation.setTouchEmulationEnabled", { enabled: true });
+  const swipe = async (from: [number, number], to: [number, number]) => {
+    await touch.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x: from[0], y: from[1] }],
+    });
+    for (const fraction of [0.25, 0.5, 0.75, 1]) {
+      await touch.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [
+          {
+            x: from[0] + (to[0] - from[0]) * fraction,
+            y: from[1] + (to[1] - from[1]) * fraction,
+          },
+        ],
+      });
+    }
+    await touch.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+  };
+  await swipe([300, 290], [90, 290]);
+  await expect(days.nth(6)).toHaveAttribute("aria-pressed", "true");
+  await expect(week).toHaveText(initialWeek!);
+  await swipe([300, 290], [90, 290]);
+  await expect(days.first()).toHaveAttribute("aria-pressed", "true");
+  await expect(week).not.toHaveText(initialWeek!);
+  await expect(page.locator(".lesson-card:visible").first()).toBeVisible();
+  await swipe([90, 290], [300, 290]);
+  await expect(days.nth(6)).toHaveAttribute("aria-pressed", "true");
+  await expect(week).toHaveText(initialWeek!);
+  await swipe([180, 290], [185, 185]);
+  await expect(days.nth(6)).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("dialog")).not.toBeVisible();
 });
 test("320px layout, reduced motion and tablet split view", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
