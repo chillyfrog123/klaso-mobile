@@ -153,6 +153,21 @@ export function addDays(date: string, n: number) {
   d.setDate(d.getDate() + n);
   return localDate(d);
 }
+export function gradesThisWeek(items: Grade[], now = new Date()) {
+  const start = monday(now);
+  const end = addDays(start, 7);
+  return items.filter(({ date }) => {
+    // Librus Grade.Date is a school calendar date, not an addition timestamp.
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+    const parsed = new Date(date + "T00:00:00Z");
+    return (
+      !isNaN(+parsed) &&
+      parsed.toISOString().slice(0, 10) === date &&
+      date >= start &&
+      date < end
+    );
+  });
+}
 export function band(value: string) {
   const match = value
     .trim()

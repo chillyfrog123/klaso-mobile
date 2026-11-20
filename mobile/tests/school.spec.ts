@@ -3,7 +3,12 @@ import data from "../src/demo.json" with { type: "json" };
 
 async function mockSchool(
   page: Page,
-  options: { delayed?: boolean; enabled?: boolean; signedOut?: boolean } = {},
+  options: {
+    delayed?: boolean;
+    enabled?: boolean;
+    signedOut?: boolean;
+    room?: string;
+  } = {},
 ) {
   await page.addInitScript(
     ({ fixtures, options }) => {
@@ -110,6 +115,7 @@ async function mockSchool(
             });
           if (section === "Timetable") {
             const lessons = structuredClone(fixtures.Timetable.Timetable);
+            if (options.room !== undefined) lessons[0].room = options.room;
             const delta =
               new Date(week + "T12:00:00").getTime() -
               new Date("2026-11-09T12:00:00").getTime();
@@ -343,7 +349,27 @@ test("room number appears in the timetable card and lesson details", async ({
   await mockSchool(page, { enabled: false });
   await page.locator(".day-picker button").first().click();
   const lesson = page.locator(".lesson-card:visible").first();
-  await expect(lesson.locator(".lesson-meta")).toContainText("Room 101");
+  await expect(lesson.locator(".lesson-meta span").last()).toHaveText("101");
   await lesson.click();
   await expect(page.getByRole("dialog")).toContainText("101");
+});
+
+test("server-provided classroom names appear unchanged in cards and details", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  const room = "Pracownia informatyczna — budynek A, II piętro";
+  await mockSchool(page, { enabled: false, room });
+  await page.locator(".day-picker button").first().click();
+  const lesson = page.locator(".lesson-card:visible").first();
+  await expect(lesson.locator(".lesson-meta span").last()).toHaveText(room);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await lesson.click();
+  await expect(
+    page.getByRole("dialog").getByText(room, { exact: true }),
+  ).toBeVisible();
 });

@@ -50,6 +50,7 @@ import {
   attendanceType,
   RequestGate,
   gradeKeys,
+  gradesThisWeek,
   mergeArchive,
 } from "./model";
 import { SchoolSettings, useSchoolMonitor } from "./SchoolMonitor";
@@ -117,7 +118,9 @@ function App() {
   const [day, setDay] = useState(Math.min((new Date().getDay() + 6) % 7, 6));
   const [viewWeek, setViewWeek] = useState(false);
   const [semester, setSemester] = useState(0);
-  const [newGradesOnly, setNewGradesOnly] = useState(false);
+  const [gradeView, setGradeView] = useState<
+    "all" | "newSinceLogin" | "newThisWeek"
+  >("all");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState([0, 1, 2, 3, 4, 5]);
@@ -156,7 +159,7 @@ function App() {
       setTab(target);
       setReading(null);
       setSheet(null);
-      if (target === "Grades") setNewGradesOnly(true);
+      if (target === "Grades") setGradeView("newSinceLogin");
       if (target === "Messages") {
         setInbox(true);
         setPage(1);
@@ -290,7 +293,7 @@ function App() {
     gate.current.begin("detail");
   }, [cacheKey, tab, account?.owner, demo]);
   useEffect(() => {
-    setNewGradesOnly(false);
+    setGradeView("all");
   }, [account?.owner, demo]);
   useEffect(() => {
     if (
@@ -668,9 +671,7 @@ function App() {
                         <h3>{l.subject}</h3>
                         <p className="lesson-meta">
                           <span>{l.teacher}</span>
-                          <span>
-                            {t("room")} {l.room}
-                          </span>
+                          <span aria-label={t("room")}>{l.room}</span>
                         </p>
                         {(l.canceled || l.substitution) && (
                           <b>{t(l.canceled ? "canceled" : "substitution")}</b>
@@ -696,7 +697,11 @@ function App() {
     const keys = gradeKeys(grades.items);
     const newKeys = new Set(archive.activity?.newGradeIds ?? []);
     const isNew = (g: Grade) => newKeys.has(keys[grades.items.indexOf(g)]);
-    const rows = semesterRows.filter((g) => !newGradesOnly || isNew(g));
+    const weeklyRows = gradesThisWeek(semesterRows);
+    const rows =
+      gradeView === "newThisWeek"
+        ? weeklyRows
+        : semesterRows.filter((g) => gradeView === "all" || isNew(g));
     const newCount = semesterRows.filter(isNew).length;
     const subjects = [...new Set(rows.map((g) => g.subject))].sort();
     return (
@@ -704,25 +709,35 @@ function App() {
         <div className="grade-filters">
           <div className="filter-chips" aria-label={t("gradeDisplay")}>
             <button
-              aria-pressed={!newGradesOnly}
-              className={!newGradesOnly ? "active" : ""}
-              onClick={() => setNewGradesOnly(false)}
+              aria-pressed={gradeView === "all"}
+              className={gradeView === "all" ? "active" : ""}
+              onClick={() => setGradeView("all")}
             >
               {t("allGrades")}
             </button>
             <button
-              aria-pressed={newGradesOnly}
-              className={newGradesOnly ? "active" : ""}
-              onClick={() => setNewGradesOnly(true)}
+              aria-pressed={gradeView === "newSinceLogin"}
+              className={gradeView === "newSinceLogin" ? "active" : ""}
+              onClick={() => setGradeView("newSinceLogin")}
             >
               {t("newSinceLogin")} <span aria-hidden="true">({newCount})</span>
+            </button>
+            <button
+              aria-pressed={gradeView === "newThisWeek"}
+              className={gradeView === "newThisWeek" ? "active" : ""}
+              onClick={() => setGradeView("newThisWeek")}
+            >
+              {t("newThisWeek")}{" "}
+              <span aria-hidden="true">({weeklyRows.length})</span>
             </button>
           </div>
           <p className="muted">
             {t(
-              archive.activity?.baselineReady
-                ? "newGradesHint"
-                : "newGradesBaseline",
+              gradeView === "newThisWeek"
+                ? "weeklyGradesHint"
+                : archive.activity?.baselineReady
+                  ? "newGradesHint"
+                  : "newGradesBaseline",
             )}
           </p>
         </div>
@@ -813,10 +828,16 @@ function App() {
           ))}
         </div>
         {!subjects.length &&
-          (newGradesOnly ? (
+          (gradeView !== "all" ? (
             <div className="empty">
               <CheckCheck size={28} />
-              <h3>{t("noNewGrades")}</h3>
+              <h3>
+                {t(
+                  gradeView === "newThisWeek"
+                    ? "noWeeklyGrades"
+                    : "noNewGrades",
+                )}
+              </h3>
             </div>
           ) : (
             empty()

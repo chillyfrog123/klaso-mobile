@@ -387,7 +387,8 @@ pub fn message(value: &Value, full: bool) -> Message {
 }
 
 fn room_label(value: &Value) -> Option<String> {
-    ["Symbol", "Name", "Number"]
+    // A room can be a named workshop or venue, not just its short symbol.
+    ["Name", "Symbol", "Number"]
         .into_iter()
         .map(|field| text(value, field).trim().to_owned())
         .find(|label| !label.is_empty())
@@ -406,16 +407,23 @@ pub fn classroom_names(records: &[Value]) -> HashMap<String, String> {
 }
 
 fn classroom(lesson: &Value, rooms: &HashMap<String, String>) -> String {
-    // Prefer room text carried by the timetable itself. A reference with an
-    // unavailable/blank lookup must not hide a usable label in another field.
+    // Prefer full names, inline or resolved by ID, before shortened symbols.
+    // An unavailable lookup must not hide a usable label in another field.
     let candidates: Vec<_> = [lesson, &lesson["Lesson"]]
         .into_iter()
         .flat_map(|source| ["Classroom", "ClassRoom", "Room"].map(|key| &source[key]))
         .collect();
-    for value in &candidates {
-        if let Some(label) = room_label(value) {
-            return label;
+    resolve_classroom(&candidates, rooms)
+}
+
+fn resolve_classroom(candidates: &[&Value], rooms: &HashMap<String, String>) -> String {
+    for value in candidates {
+        let name = text(value, "Name").trim().to_owned();
+        if !name.is_empty() {
+            return name;
         }
+    }
+    for value in candidates {
         if !value.is_object() {
             let raw = scalar(value).trim().to_owned();
             if !raw.is_empty() {
@@ -427,14 +435,22 @@ fn classroom(lesson: &Value, rooms: &HashMap<String, String>) -> String {
             }
         }
     }
+    for value in candidates {
+        let id = text(value, "Id").trim().to_owned();
+        if let Some(name) = rooms.get(&id).filter(|name| !name.trim().is_empty()) {
+            return name.trim().to_owned();
+        }
+    }
+    for value in candidates {
+        if let Some(label) = room_label(value) {
+            return label;
+        }
+    }
     let mut fallback = None;
     for value in candidates {
         let id = text(value, "Id").trim().to_owned();
         if id.is_empty() {
             continue;
-        }
-        if let Some(label) = rooms.get(&id).filter(|name| !name.trim().is_empty()) {
-            return label.trim().to_owned();
         }
         fallback.get_or_insert(id);
     }
@@ -534,12 +550,46 @@ mod tests {
     fn room_symbols_ids_and_scalar_rooms_are_preserved() {
         let rooms = HashMap::from([("12".into(), "B-204".into())]);
         assert_eq!(
-            classroom(&json!({"Classroom":{"Symbol":"A-103","Id":12}}), &rooms),
+            classroom(&json!({"Classroom":{"Symbol":"A-103"}}), &rooms),
             "A-103"
+        );
+        assert_eq!(
+            classroom(&json!({"Classroom":{"Symbol":"A-103","Id":12}}), &rooms),
+            "B-204"
         );
         assert_eq!(classroom(&json!({"Classroom":{"Id":12}}), &rooms), "B-204");
         assert_eq!(classroom(&json!({"Classroom":"Gym"}), &rooms), "Gym");
         assert_eq!(classroom(&json!({}), &rooms), "—");
+    }
+    #[test]
+    fn full_classroom_names_take_priority_over_abbreviations_and_numbers() {
+        let full_name = "Pracownia informatyczna — budynek A, II piętro";
+        let rooms = classroom_names(&[json!({"Id":12,"Name":full_name,"Symbol":"12","Number":12})]);
+        let payload = json!({"Timetable":{"2026-11-20":[
+            [{"Subject":{"Name":"Informatyka"},"Classroom":{"Name":full_name,"Symbol":"12"}}],
+            [{"Subject":{"Name":"Matematyka"},"Classroom":{"Id":12}}],
+            [{"Subject":{"Name":"Fizyka"},"Classroom":{"Id":12,"Symbol":"12"}}],
+            [{"Subject":{"Name":"Plastyka"},"Classroom":"Pracownia plastyczna","Lesson":{"Classroom":{"Id":12}}}],
+            [{"Subject":{"Name":"Chemia"},"ClassRoom":"Pracownia chemiczna / laboratorium 2"}],
+            [{"Subject":{"Name":"WF"},"Room":{"Name":"Sala gimnastyczna","Number":3}}],
+            [{"Subject":{"Name":"Technika"},"Lesson":{"Classroom":{"Name":"Pracownia techniczna","Symbol":"T-1"}}}]
+        ]}});
+        let lessons = timetable(&payload, &HashMap::new(), &HashMap::new(), &rooms).unwrap();
+        assert_eq!(
+            lessons
+                .iter()
+                .map(|lesson| lesson.room.as_str())
+                .collect::<Vec<_>>(),
+            vec![
+                "Pracownia informatyczna — budynek A, II piętro",
+                "Pracownia informatyczna — budynek A, II piętro",
+                "Pracownia informatyczna — budynek A, II piętro",
+                "Pracownia plastyczna",
+                "Pracownia chemiczna / laboratorium 2",
+                "Sala gimnastyczna",
+                "Pracownia techniczna",
+            ]
+        );
     }
     #[test]
     fn room_lookup_does_not_turn_available_rooms_into_blank_text() {

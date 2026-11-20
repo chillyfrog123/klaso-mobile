@@ -27,6 +27,10 @@ export const en = {
   gradeDisplay: "Show grades",
   allGrades: "All grades",
   newSinceLogin: "New since last login",
+  newThisWeek: "New this week",
+  weeklyGradesHint:
+    "Grades dated Monday through Sunday this week, using the school time zone (Europe/Warsaw). Averages include all grades in the selected semester.",
+  noWeeklyGrades: "No grades from this week",
   newGrade: "New",
   newGradesHint:
     "New grades since your previous app session stay marked throughout this session. Averages include all grades in the selected semester.",
@@ -227,6 +231,10 @@ export const pl: Record<Label, string> = {
   gradeDisplay: "Pokaż oceny",
   allGrades: "Wszystkie oceny",
   newSinceLogin: "Nowe od ostatniego logowania",
+  newThisWeek: "Nowe w tym tygodniu",
+  weeklyGradesHint:
+    "Oceny z bieżącego tygodnia od poniedziałku do niedzieli, według daty oceny i czasu szkolnego (Europe/Warsaw). Średnie uwzględniają wszystkie oceny w wybranym semestrze.",
+  noWeeklyGrades: "Brak ocen z tego tygodnia",
   newGrade: "Nowa",
   newGradesHint:
     "Nowe oceny od poprzedniej sesji pozostają oznaczone przez całą sesję. Średnie uwzględniają wszystkie oceny w wybranym semestrze.",

@@ -1,3 +1,13 @@
+# Weekly grades and full room names — 20 November 2026
+
+Local test APK: `mobile/artifacts/klaso-mobile-weekly-grades-rooms-debug.apk`, version 0.1.5 / version code 6. SHA-256: `008c110ed0278d0a23e12df8040ceb61f47d4dc3683b40422c083eded954f3d9`.
+
+- Added the separate “Nowe w tym tygodniu” view, Monday through Sunday in Europe/Warsaw, based on the displayed grade date. The model does not contain a separate addition timestamp. Semester filtering, full-semester averages and the existing login-session badges retain their behavior.
+- Room parsing preserves full inline names and scalar labels, resolves ID references to available full names before abbreviations, and retains symbol/number fallbacks. Timetable cards display the returned label without adding “Room”/“Sala”; details retain a separate field label.
+- All 35 frontend unit tests and 32 browser scenarios passed, including week/year boundaries, Warsaw winter/summer Monday midnight, invalid dates, independent grade views, full averages and long classroom names at 320 px. Shared Rust tests passed: 27 mobile and 42 desktop, with one live-account test intentionally ignored in each suite.
+- Production web build, Capacitor sync, ARM64 Rust rebuild, Android APK assembly and all 18 Android JVM tests passed. Android lint reported zero errors and four tool/resource warnings. APK signature and 16 KB ZIP alignment checks passed; the APK contains the weekly filter and empty-state translations.
+- No live school account or physical-device validation was performed. Room parsing was checked with fixture responses; previously cached room labels need a timetable refresh.
+
 # Text-selection menu — 20 November 2026
 
 Local debug preview: `mobile/artifacts/klaso-mobile-text-selection-debug.apk`, version 0.1.5 / version code 6, 8,354,838 bytes. SHA-256: `cb64b2794db0d1f67eebaabd04dfe812a94b3971bf6ae511211184b44c45e9ee`. No release was published.
