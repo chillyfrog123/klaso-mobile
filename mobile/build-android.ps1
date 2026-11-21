@@ -32,6 +32,8 @@ try {
     Check-Exit 'Android package'
 } finally { Pop-Location }
 New-Item -ItemType Directory -Force artifacts | Out-Null
-Copy-Item -LiteralPath 'android/app/build/outputs/apk/debug/app-debug.apk' -Destination 'artifacts/klaso-mobile-0.1.5-arm64-debug.apk' -Force
-Get-FileHash 'artifacts/klaso-mobile-0.1.5-arm64-debug.apk' -Algorithm SHA256
-Write-Host 'APK: mobile/artifacts/klaso-mobile-0.1.5-arm64-debug.apk'
+$versionName = (Select-String -Path 'android/app/build.gradle' -Pattern 'versionName "([^"]+)"').Matches.Groups[1].Value
+$apkPath = "artifacts/klaso-mobile-$versionName-arm64-debug.apk"
+Copy-Item -LiteralPath 'android/app/build/outputs/apk/debug/app-debug.apk' -Destination $apkPath -Force
+Get-FileHash $apkPath -Algorithm SHA256
+Write-Host "APK: mobile/$apkPath"
