@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 /** Validation shared by release discovery and installation. Stable releases only. */
 final class UpdatePolicy {
     static final String REPOSITORY = "chillyfrog123/klaso-mobile";
-    private static final Pattern VERSION = Pattern.compile("v?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)");
+    private static final Pattern VERSION = Pattern.compile("v?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:\\.(0|[1-9][0-9]*))?");
     private UpdatePolicy() {}
 
     static String version(String value) {
@@ -19,8 +19,10 @@ final class UpdatePolicy {
     static boolean newer(String candidate, String current) {
         String[] next = version(candidate).split("\\.");
         String[] installed = version(current).split("\\.");
-        for (int index = 0; index < 3; index++) {
-            int comparison = Long.compare(Long.parseLong(next[index]), Long.parseLong(installed[index]));
+        for (int index = 0; index < Math.max(next.length, installed.length); index++) {
+            long nextPart = index < next.length ? Long.parseLong(next[index]) : 0;
+            long installedPart = index < installed.length ? Long.parseLong(installed[index]) : 0;
+            int comparison = Long.compare(nextPart, installedPart);
             if (comparison != 0) return comparison > 0;
         }
         return false;

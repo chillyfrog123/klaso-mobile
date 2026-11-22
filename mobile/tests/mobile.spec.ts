@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import packageInfo from "../package.json" with { type: "json" };
+import { readFileSync } from "node:fs";
 async function demo(page: any) {
   await page.goto("/");
   await page
@@ -266,7 +266,13 @@ test("custom choices, dark theme, averages before behaviour and blue sixes", asy
   await page
     .getByRole("button", { name: "About the app", exact: true })
     .click();
-  await expect(page.getByText(`Version ${packageInfo.version}`)).toBeVisible();
+  const androidBuild = readFileSync(
+    new URL("../android/app/build.gradle", import.meta.url),
+    "utf8",
+  );
+  const versionName = androidBuild.match(/versionName "([^"]+)"/)?.[1];
+  expect(versionName).toBeTruthy();
+  await expect(page.getByText(`Version ${versionName}`)).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Klaso Mobile", exact: true }),
   ).toBeVisible();

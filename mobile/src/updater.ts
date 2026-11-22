@@ -2,7 +2,8 @@ import type { Label } from "./i18n";
 import type { AppRelease, UpdateSource } from "./updateBridge";
 import { version } from "../package.json";
 
-export const appVersion = version;
+// npm uses SemVer, while Android and GitHub use the four-part release version.
+export const appVersion = version.replace(/\+(\d+)$/, ".$1");
 export const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000;
 const PREFERENCE_KEY = "app-updates-v1";
 type Preferences = { autoCheck: boolean; autoUpdate: boolean };

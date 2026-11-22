@@ -9,7 +9,12 @@ public class UpdatePolicyTest {
         assertTrue(UpdatePolicy.newer("1.0.0", "0.99.99"));
         assertFalse(UpdatePolicy.newer("v0.1.2", "0.1.2"));
         assertFalse(UpdatePolicy.newer("0.1.1", "0.1.2"));
-        for (String invalid : new String[]{"v0.1.3-beta", "0.1", "01.2.3", "1.2.3.4", "1.2.99999999999999999999"}) {
+        assertTrue(UpdatePolicy.newer("v0.1.7.2", "0.1.7"));
+        assertTrue(UpdatePolicy.newer("v0.1.8", "0.1.7.2"));
+        assertTrue(UpdatePolicy.newer("0.1.7.10", "0.1.7.2"));
+        assertFalse(UpdatePolicy.newer("0.1.7", "0.1.7.2"));
+        assertFalse(UpdatePolicy.newer("0.1.7.0", "0.1.7"));
+        for (String invalid : new String[]{"v0.1.3-beta", "0.1", "01.2.3", "1.2.3.4.5", "1.2.3.04", "1.2.99999999999999999999"}) {
             try { UpdatePolicy.version(invalid); fail(invalid); }
             catch (IllegalArgumentException expected) { /* rejected */ }
         }
