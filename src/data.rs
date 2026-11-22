@@ -423,9 +423,20 @@ fn classroom(lesson: &Value, rooms: &HashMap<String, String>) -> String {
     // An unavailable lookup must not hide a usable label in another field.
     let candidates: Vec<_> = [lesson, &lesson["Lesson"]]
         .into_iter()
-        .flat_map(|source| ["Classroom", "ClassRoom", "Room"].map(|key| &source[key]))
+        .flat_map(|source| ["Classroom", "ClassRoom", "Room", "ClassroomName", "RoomNumber"].map(|key| &source[key]))
         .collect();
-    resolve_classroom(&candidates, rooms)
+    let room = resolve_classroom(&candidates, rooms);
+    if room != "-" {
+        return room;
+    }
+    for source in [lesson, &lesson["Lesson"]] {
+        for key in ["ClassroomId", "RoomId"] {
+            if let Some(label) = rooms.get(text(source, key).trim()) {
+                return label.clone();
+            }
+        }
+    }
+    room
 }
 
 fn resolve_classroom(candidates: &[&Value], rooms: &HashMap<String, String>) -> String {

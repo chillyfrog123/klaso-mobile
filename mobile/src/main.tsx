@@ -98,7 +98,7 @@ function App() {
   const [savedAccounts, setSavedAccounts] = useState<string[]>([]);
   const [addAccount, setAddAccount] = useState(false);
   const [about, setAbout] = useState(false);
-  useEffect(() => {
+  React.useLayoutEffect(() => {
     const media = matchMedia("(prefers-color-scheme: dark)");
     const apply = () =>
       (document.documentElement.dataset.mode =
@@ -1426,6 +1426,21 @@ function App() {
             <BookOpen size={21} />
           </span>
         </a>
+        <div className="page-heading">
+          <div>
+            <h1>{t(tab)}</h1>
+          </div>
+          {tab !== "Profile" && (account || demo) && (
+            <button
+              className={"refresh glass " + (busy ? "spinning" : "")}
+              disabled={busy}
+              aria-label={t("refresh")}
+              onClick={() => void refresh()}
+            >
+              <RefreshCw size={20} />
+            </button>
+          )}
+        </div>
         <button
           className="profile-button"
           aria-label={t("Profile")}
@@ -1434,7 +1449,7 @@ function App() {
           <UserRound size={20} />
         </button>
       </header>
-      <main>
+      <main key={tab} className="tab-content">
         {tab !== "Profile" && (
           <UpdateNotice
             updates={updates}
@@ -1454,21 +1469,6 @@ function App() {
             </button>
           </div>
         )}
-        <div className="page-heading">
-          <div>
-            <h1>{t(tab)}</h1>
-          </div>
-          {tab !== "Profile" && (account || demo) && (
-            <button
-              className={"refresh glass " + (busy ? "spinning" : "")}
-              disabled={busy}
-              aria-label={t("refresh")}
-              onClick={() => void refresh()}
-            >
-              <RefreshCw size={20} />
-            </button>
-          )}
-        </div>
         {tab !== "Profile" && (account || demo) && (
           <p className="freshness" role="status">
             <span className={"dot " + (busy ? "pending" : "")} />
