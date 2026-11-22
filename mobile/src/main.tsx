@@ -37,6 +37,7 @@ import {
   type Tab,
   type Section,
   type Grade,
+  type Attendance,
   type Lesson,
   type Message,
   type Archive,
@@ -91,6 +92,68 @@ function preference(key: string, fallback: string) {
     return fallback;
   }
 }
+function RefreshButton({
+  updated,
+  busy,
+  lang,
+  t,
+  onRefresh,
+}: {
+  updated?: string;
+  busy: boolean;
+  lang: string;
+  t: (key: Label) => string;
+  onRefresh: () => void;
+}) {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const tick = () => setNow(Date.now());
+    const timer = window.setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, []);
+  const refreshed = new Date(updated ?? "");
+  const age = (now - +refreshed) / 60_000;
+  const freshness = !Number.isFinite(age)
+    ? ""
+    : age < 1
+      ? "blue"
+      : age < 10
+        ? "green"
+        : age < 1440
+          ? "yellow"
+          : age <= 10080
+            ? "red"
+            : "stale";
+  const locale = lang === "pl" ? "pl-PL" : "en-GB";
+  const refreshDay = new Intl.DateTimeFormat(locale, { dateStyle: "short" });
+  const refreshLabel =
+    freshness &&
+    (refreshDay.format(refreshed) === refreshDay.format(now)
+      ? new Intl.DateTimeFormat(locale, {
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(refreshed)
+      : refreshDay.format(refreshed));
+  return (
+    <button
+      className={"refresh glass " + (busy ? "spinning" : "")}
+      data-freshness={freshness}
+      title={
+        refreshLabel ? t("updated") + " · " + refreshLabel : t("notUpdated")
+      }
+      disabled={busy}
+      aria-label={t("refresh")}
+      onClick={onRefresh}
+    >
+      <RefreshCw size={refreshLabel ? 16 : 20} />
+      {refreshLabel && <small aria-hidden="true">{refreshLabel}</small>}
+    </button>
+  );
+}
 function App() {
   const updates = useUpdates();
   const [lang, setLang] = useState(preference("language", "en"));
@@ -134,9 +197,11 @@ function App() {
   const [detailError, setDetailError] = useState<Label | null>(null);
   const [reading, setReading] = useState<Message | null>(null);
   const [detailBusy, setDetailBusy] = useState(false);
-  const [sheet, setSheet] = useState<{ grade?: Grade; lesson?: Lesson } | null>(
-    null,
-  );
+  const [sheet, setSheet] = useState<{
+    grade?: Grade;
+    lesson?: Lesson;
+    attendance?: Attendance;
+  } | null>(null);
   const gate = useRef(new RequestGate());
   const offlineFallbackWeek = useRef<string | null>(null);
   const school = useSchoolMonitor({
@@ -179,6 +244,7 @@ function App() {
     null,
   );
   const dialog = useRef<HTMLDialogElement>(null);
+  const attendanceFilter = useRef<HTMLDialogElement>(null);
   const section: Section =
     tab === "Profile"
       ? "Grades"
@@ -301,6 +367,8 @@ function App() {
     setDetailError(null);
     setDetailBusy(false);
     gate.current.begin("detail");
+    gate.current.begin("attendanceDetail");
+    setSheet(null);
   }, [cacheKey, tab, account?.owner, demo]);
   useEffect(() => {
     setGradeView("all");
@@ -595,23 +663,41 @@ function App() {
         <div className="lesson-time">
           <strong>{lesson.from}</strong>
           <span>{lesson.to}</span>
+          {side && (
+            <span
+              className="lesson-number"
+              aria-label={t("lesson") + " " + lesson.number}
+            >
+              #{lesson.number}
+            </span>
+          )}
           {showDate && (
             <span className="lesson-origin-date">{date(lesson.date)}</span>
           )}
         </div>
         <div className="lesson-info">
-          <span className="lesson-number">
-            {t("lesson")} {lesson.number}
-          </span>
+          {!side && (
+            <span className="lesson-number">
+              {t("lesson")} {lesson.number}
+            </span>
+          )}
           <h3>{subject}</h3>
-          {(lesson.teacher || lesson.room) && (
+          {(lesson.teacher || (!side && lesson.room)) && (
             <p className="lesson-meta">
               {lesson.teacher && <span>{lesson.teacher}</span>}
-              {lesson.room && <span aria-label={t("room")}>{lesson.room}</span>}
+              {!side && lesson.room && (
+                <span aria-label={t("room")}>{lesson.room}</span>
+              )}
             </p>
           )}
-          {showStatus && <b>{t(status)}</b>}
+          {!side && showStatus && <b>{t(status)}</b>}
         </div>
+        {side && (
+          <div className="lesson-change-footer">
+            {showStatus && <b>{t(status)}</b>}
+            {lesson.room && <span aria-label={t("room")}>{lesson.room}</span>}
+          </div>
+        )}
         {!side && <ChevronRight size={18} />}
       </button>
     );
@@ -815,32 +901,7 @@ function App() {
               <span aria-hidden="true">({weeklyRows.length})</span>
             </button>
           </div>
-          <p className="muted">
-            {t(
-              gradeView === "newThisWeek"
-                ? "weeklyGradesHint"
-                : archive.activity?.baselineReady
-                  ? "newGradesHint"
-                  : "newGradesBaseline",
-            )}
-          </p>
         </div>
-        <article className="card behaviour">
-          <div className="section-toolbar">
-            <h2>{t("behaviour")}</h2>
-            <ShieldCheck size={21} />
-          </div>
-          <p className="muted">{t("behaviourHint")}</p>
-          {grades.behaviour
-            .filter((b) => !semester || b.semester === String(semester))
-            .map((b, i) => (
-              <div className="behaviour-row" key={i}>
-                <strong>{b.value}</strong>
-                <span>{b.description}</span>
-                <small>{date(b.date)}</small>
-              </div>
-            ))}
-        </article>
         <div className="summary-card">
           <div>
             <span className="eyebrow">{t("overall")}</span>
@@ -860,6 +921,21 @@ function App() {
             </span>
           </div>
         </div>
+        <article className="card behaviour">
+          <div className="section-toolbar">
+            <h2>{t("behaviour")}</h2>
+            <ShieldCheck size={21} />
+          </div>
+          {grades.behaviour
+            .filter((b) => !semester || b.semester === String(semester))
+            .map((b, i) => (
+              <div className="behaviour-row" key={i}>
+                <strong>{b.value}</strong>
+                <span>{b.description}</span>
+                <small>{date(b.date)}</small>
+              </div>
+            ))}
+        </article>
         <div className="section-toolbar">
           <h2>{t("subjects")}</h2>
           <label>
@@ -929,6 +1005,59 @@ function App() {
       </>
     );
   }
+  async function openAttendance(entry: Attendance) {
+    setSheet({ attendance: entry });
+    const day = entry.date.slice(0, 10);
+    const parsed = new Date(day + "T12:00:00");
+    if (!Number.isFinite(+parsed)) return;
+    const lessonWeek = addDays(day, -((parsed.getDay() + 6) % 7));
+    const key = keyFor("Timetable", lessonWeek, 1);
+    const valid = gate.current.begin("attendanceDetail");
+    let lessons = archive.snapshots[key]?.payload.Timetable;
+    try {
+      if (demo) {
+        lessons = (await demoData(lessonWeek)).Timetable.Timetable;
+      } else if (!lessons && account?.session) {
+        const result = await bridge.load({
+          owner: account.owner,
+          section: "Timetable",
+          week: lessonWeek,
+          page: 1,
+        });
+        if (!valid()) return;
+        lessons = result.payload.Timetable;
+        setArchive((previous) =>
+          mergeArchive(previous, {
+            snapshots: { [key]: result },
+            details: {},
+          }),
+        );
+      }
+    } catch {
+      // The attendance entry remains available when its timetable cannot load.
+      return;
+    }
+    const candidates =
+      lessons?.filter(
+        (lesson) =>
+          lesson.date === day && Number(lesson.number) === Number(entry.lesson),
+      ) ?? [];
+    const matching = candidates.filter(
+      (lesson) => lesson.subject === entry.subject,
+    );
+    const active = matching.filter((lesson) => !lesson.canceled);
+    const lesson =
+      active.length === 1
+        ? active[0]
+        : matching.length === 1
+          ? matching[0]
+          : undefined;
+    if (valid() && lesson) {
+      setSheet((current) =>
+        current?.attendance === entry ? { attendance: entry, lesson } : current,
+      );
+    }
+  }
   function attendance() {
     const items = payload?.Attendance;
     if (!items) return empty();
@@ -947,15 +1076,36 @@ function App() {
     const days = attendanceDays(items, filters);
     return (
       <>
-        <div className="card filter-card">
-          <h2>
-            <SlidersHorizontal size={18} />
-            {t("filters")}
-          </h2>
-          <div className="filter-chips">
+        <button
+          className="secondary attendance-filter-trigger"
+          aria-haspopup="dialog"
+          onClick={() => attendanceFilter.current?.showModal()}
+        >
+          <SlidersHorizontal size={16} /> {t("filters")}
+        </button>
+        <dialog
+          ref={attendanceFilter}
+          className="choice attendance-filter"
+          aria-label={t("filters")}
+          onClick={(event) => {
+            if (event.target === attendanceFilter.current)
+              attendanceFilter.current.close();
+          }}
+        >
+          <div className="section-toolbar">
+            <h2>{t("filters")}</h2>
+            <button
+              aria-label={t("close")}
+              onClick={() => attendanceFilter.current?.close()}
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="attendance-filter-options">
             {labels.map((label, i) => (
               <button
                 key={label}
+                className={"attendance-option type-" + i}
                 aria-pressed={filters.includes(i)}
                 onClick={() =>
                   setFilters((prev) =>
@@ -964,50 +1114,56 @@ function App() {
                       : [...prev, i],
                   )
                 }
-                className={filters.includes(i) ? "active" : ""}
               >
+                <span>{t(label)}</span>
                 <b>{codes[i]}</b>
-                {t(label)}
               </button>
             ))}
           </div>
           <div className="filter-actions">
-            <button onClick={() => setFilters([0, 1, 2, 3, 4, 5])}>
+            <button className="secondary" onClick={() => setFilters([])}>
+              {t("clearAll")}
+            </button>
+            <button
+              className="secondary"
+              onClick={() => setFilters(labels.map((_, i) => i))}
+            >
               {t("selectAll")}
             </button>
-            <button onClick={() => setFilters([])}>{t("clearAll")}</button>
           </div>
-          <p className="muted">{t("filterHint")}</p>
-        </div>
+        </dialog>
         {days.map(([dateKey, rows]) => (
           <section className="attendance-day" key={dateKey}>
             <div className="section-toolbar">
               <h2>{date(dateKey, true, true)}</h2>
-              <small>
-                {rows.length} {t("entries")}
-              </small>
             </div>
-            <div className="card">
+            <div
+              className="card attendance-strip"
+              role="group"
+              aria-label={date(dateKey, true, true)}
+            >
               {[...rows]
                 .sort((a, b) => Number(a.lesson) - Number(b.lesson))
-                .map((a, i) => {
-                  const type = attendanceType(a);
+                .map((entry, i) => {
+                  const type = attendanceType(entry);
                   return (
-                    <div className="attendance-row" key={i}>
-                      <div className="attendance-period">
-                        <span
-                          className={"attendance-code type-" + type}
-                          title={t(labels[type])}
-                        >
-                          {codes[type]}
-                        </span>
-                        <span>
-                          {t("lesson")} {a.lesson}
-                        </span>
-                      </div>
-                      <h3>{a.subject}</h3>
-                      <p>{a.kind}</p>
-                    </div>
+                    <button
+                      className="attendance-row"
+                      key={i}
+                      aria-label={
+                        t("lesson") +
+                        " " +
+                        entry.lesson +
+                        ", " +
+                        t(labels[type])
+                      }
+                      onClick={() => void openAttendance(entry)}
+                    >
+                      <strong>{entry.lesson || "—"}</strong>
+                      <span className={"attendance-code type-" + type}>
+                        {codes[type]}
+                      </span>
+                    </button>
                   );
                 })}
             </div>
@@ -1243,12 +1399,6 @@ function App() {
                       : "signedOut",
                 )}
           </p>
-          {account && (
-            <span className="status-pill">
-              <ShieldCheck size={14} />
-              {t(account.remembered ? "remembered" : "sessionOnly")}
-            </span>
-          )}
         </div>
         {!demo && (
           <section className="card accounts">
@@ -1431,14 +1581,13 @@ function App() {
             <h1>{t(tab)}</h1>
           </div>
           {tab !== "Profile" && (account || demo) && (
-            <button
-              className={"refresh glass " + (busy ? "spinning" : "")}
-              disabled={busy}
-              aria-label={t("refresh")}
-              onClick={() => void refresh()}
-            >
-              <RefreshCw size={20} />
-            </button>
+            <RefreshButton
+              updated={snapshot?.updated}
+              busy={busy}
+              lang={lang}
+              t={t}
+              onRefresh={() => void refresh()}
+            />
           )}
         </div>
         <button
@@ -1468,16 +1617,6 @@ function App() {
               <X size={16} />
             </button>
           </div>
-        )}
-        {tab !== "Profile" && (account || demo) && (
-          <p className="freshness" role="status">
-            <span className={"dot " + (busy ? "pending" : "")} />
-            {busy
-              ? t("refreshing")
-              : snapshot
-                ? `${t("updated")} · ${new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en-GB", { dateStyle: "short", timeStyle: "short" }).format(new Date(snapshot.updated))}`
-                : t("notUpdated")}
-          </p>
         )}
         {status(error)}
         {!demo && tab !== "Profile" && school.error && status(school.error)}
@@ -1587,7 +1726,37 @@ function App() {
             </dl>
           </>
         )}
-        {sheet?.lesson && (
+        {sheet?.attendance && (
+          <>
+            <span className="eyebrow">
+              {t("lesson")} {sheet.attendance.lesson} · {sheet.attendance.kind}
+            </span>
+            <h2>{sheet.attendance.subject || t("unknown")}</h2>
+            <dl>
+              <div>
+                <dt>{t("date")}</dt>
+                <dd>{date(sheet.attendance.date, true)}</dd>
+              </div>
+              <div>
+                <dt>{t("teacher")}</dt>
+                <dd>{sheet.lesson?.teacher || "—"}</dd>
+              </div>
+              <div>
+                <dt>{t("room")}</dt>
+                <dd>{sheet.lesson?.room || "—"}</dd>
+              </div>
+              {sheet.lesson?.from && (
+                <div>
+                  <dt>{t("time")}</dt>
+                  <dd>
+                    {sheet.lesson.from} – {sheet.lesson.to}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </>
+        )}
+        {sheet?.lesson && !sheet.attendance && (
           <>
             <span className="eyebrow">{t("lessonDetails")}</span>
             <h2>{sheet.lesson.subject || t("unknown")}</h2>

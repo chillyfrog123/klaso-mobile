@@ -301,11 +301,165 @@
   background: linear-gradient(to bottom left, transparent calc(50% - 1px), #ff8492 50%, transparent calc(50% + 1px)), #672535;
 }
 :root[data-mode="dark"] .canceled :is(.lesson-number,.lesson-time span,.lesson-info p,.lesson-info small) { color: #ffd1d6; }
-.attendance-period > span:last-child {
-  color: var(--accent); font-size: 13px; font-weight: 750; font-variant-numeric: tabular-nums;
-  padding: 3px 6px; border-radius: 5px; background: rgba(var(--accent-rgb), .12);
-}
 @media (prefers-reduced-motion: no-preference) {
   .tab-content { animation: tab-enter 170ms ease-out; }
   @keyframes tab-enter { from { opacity: .6; translate: 0 4px; } to { opacity: 1; translate: 0 0; } }
+}
+
+.lesson-change .lesson-time .lesson-number {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.lesson-change-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 11px;
+}
+.lesson-change-footer span {
+  margin-inline-start: auto;
+  overflow-wrap: anywhere;
+  text-align: end;
+}
+
+.attendance-filter-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.attendance-filter-options {
+  display: grid;
+  gap: 6px;
+}
+.attendance-filter .attendance-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 13px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  text-align: start;
+}
+.attendance-filter .attendance-option[aria-pressed="true"] {
+  border-color: currentColor;
+  font-weight: 700;
+}
+.attendance-filter .attendance-option[aria-pressed="false"] {
+  background: rgba(var(--accent-rgb), 0.07);
+  color: var(--muted);
+}
+:root[data-mode="dark"] :is(.attendance-option, .attendance-code).type-0 {
+  background: #174836;
+  color: #b1f3cf;
+}
+:root[data-mode="dark"] :is(.attendance-option, .attendance-code).type-1 {
+  background: #672535;
+  color: #ffcad4;
+}
+:root[data-mode="dark"]
+  :is(.attendance-option, .attendance-code):is(.type-2, .type-3) {
+  background: #243c67;
+  color: #c6dcff;
+}
+:root[data-mode="dark"] :is(.attendance-option, .attendance-code).type-4 {
+  background: #543c13;
+  color: #ffe0a0;
+}
+:root[data-mode="dark"] :is(.attendance-option, .attendance-code).type-5 {
+  background: #333d50;
+  color: #d6deef;
+}
+:root[data-mode="dark"]
+  .attendance-filter
+  .attendance-option[aria-pressed="false"] {
+  background: rgba(var(--accent-rgb), 0.07);
+  color: var(--muted);
+}
+.attendance-filter .filter-actions {
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+.grade-filters .filter-chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.grade-filters .filter-chips button {
+  justify-content: center;
+  padding: 4px;
+  min-height: 38px;
+  font-size: 11px;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.topbar .refresh[data-freshness] {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 44px;
+  min-height: 44px;
+  padding-inline: 4px;
+}
+.topbar .refresh small {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.topbar .refresh[data-freshness="blue"] {
+  background: #d9ebff;
+  color: #134c93;
+}
+.topbar .refresh[data-freshness="green"] {
+  background: #dcf5e5;
+  color: #186141;
+}
+.topbar .refresh[data-freshness="yellow"] {
+  background: #fff1c3;
+  color: #725008;
+}
+.topbar .refresh:is([data-freshness="red"], [data-freshness="stale"]) {
+  background: #ffe0e5;
+  color: #a21f3b;
+}
+:root[data-mode="dark"] .topbar .refresh[data-freshness="blue"] {
+  background: #233f6a;
+  color: #c0dbff;
+}
+:root[data-mode="dark"] .topbar .refresh[data-freshness="green"] {
+  background: #204936;
+  color: #b1f3cf;
+}
+:root[data-mode="dark"] .topbar .refresh[data-freshness="yellow"] {
+  background: #563e13;
+  color: #ffe0a0;
+}
+:root[data-mode="dark"]
+  .topbar
+  .refresh:is([data-freshness="red"], [data-freshness="stale"]) {
+  background: #672535;
+  color: #ffcad4;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .refresh[data-freshness="stale"] {
+    animation: refresh-glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes refresh-glow {
+    from {
+      box-shadow: 0 0 0 1px #df4862;
+    }
+    to {
+      box-shadow: 0 0 12px 2px #df4862;
+    }
+  }
 }

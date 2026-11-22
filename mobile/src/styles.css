@@ -218,14 +218,6 @@ main {
   color: var(--accent);
   border-radius: 50%;
 }
-.freshness {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  color: var(--muted);
-  margin: 0 0 12px;
-}
 .dot {
   display: inline-block;
   flex-shrink: 0;
@@ -233,12 +225,6 @@ main {
   width: 6px;
   height: 6px;
   background: var(--accent);
-}
-.freshness .dot {
-  background: #36856d;
-}
-.freshness .pending {
-  background: #b77919;
 }
 .card {
   background: #fff;
@@ -881,15 +867,6 @@ main {
   min-width: 44px;
   min-height: 44px;
 }
-.filter-card {
-  padding: 14px;
-}
-.filter-card h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-}
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
@@ -918,47 +895,30 @@ main {
   font-size: 12px;
   margin: 0 0 4px;
 }
-.filter-card > .muted {
-  font-size: 11px;
-}
 .attendance-day .section-toolbar h2 {
   font-size: 16px;
 }
 .attendance-day .section-toolbar h2::first-letter {
   text-transform: uppercase;
 }
-.attendance-day .section-toolbar small {
-  color: var(--muted);
-  white-space: nowrap;
-}
-.attendance-day > .card {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+.attendance-day > .attendance-strip {
+  display: flex;
   gap: 6px;
-  padding: 8px;
+  padding: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  margin-bottom: 8px;
 }
 .attendance-row {
-  min-width: 0;
-  padding: 6px;
-  border-radius: 12px;
-  background: rgba(var(--accent-rgb), 0.04);
-  overflow-wrap: anywhere;
-}
-.attendance-period {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 4px;
-}
-.attendance-period > span:last-child,
-.attendance-row p {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.3;
-}
-.attendance-row h3 {
-  margin: 4px 0 2px;
-  font-size: 12px;
-  line-height: 1.25;
+  gap: 5px;
+  min-height: 40px;
+  padding: 4px 7px;
+  border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.08);
+  font-variant-numeric: tabular-nums;
 }
 .attendance-code {
   display: grid;
@@ -1272,11 +1232,6 @@ dd {
 }
 .grade-filters {
   margin-bottom: 12px;
-}
-.grade-filters > p {
-  margin: 8px 0;
-  font-size: 12px;
-  line-height: 1.5;
 }
 .grade.is-new {
   outline: 2px solid var(--accent);

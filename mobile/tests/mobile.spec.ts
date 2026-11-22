@@ -79,27 +79,48 @@ test("timetable, full-day attendance filtering, inbox and notices", async ({
     page.locator(".day-column:not(.inactive-day) .day-off strong"),
   ).toBeVisible();
   await page.getByRole("button", { name: "Attendance", exact: true }).click();
-  await page.getByRole("button", { name: "Clear all", exact: true }).click();
-  await expect(page.getByText("Nothing here yet")).toBeVisible();
-  await page
-    .getByRole("button", { name: "EA Excused absence", exact: true })
+  const filter = page.getByRole("dialog", { name: "Filter days" });
+  await expect(filter).toBeHidden();
+  await page.getByRole("button", { name: "Filter days" }).click();
+  await filter.getByRole("button", { name: "Clear all", exact: true }).click();
+  await filter
+    .getByRole("button", { name: "Excused absence EA", exact: true })
     .click();
+  await filter.getByRole("button", { name: "Close", exact: true }).click();
   await expect(page.locator(".attendance-row .type-0").first()).toBeVisible();
-  await expect(page.locator(".attendance-day h2").first()).toContainText(
-    "Monday",
-  );
+  const day = page.locator(".attendance-day").first();
+  await expect(day.locator("h2")).toContainText("Monday");
+  const row = day.locator(".attendance-strip");
   expect(
-    await page
-      .locator(".attendance-day > .card")
-      .first()
-      .evaluate((card) => {
-        const tiles = card.querySelectorAll<HTMLElement>(".attendance-row");
-        return (
-          card.scrollWidth === card.clientWidth &&
-          tiles[0].offsetTop < tiles[tiles.length - 1].offsetTop
-        );
-      }),
+    await row.evaluate((strip) => {
+      const tiles = [...strip.querySelectorAll<HTMLElement>(".attendance-row")];
+      return (
+        strip.scrollWidth > strip.clientWidth &&
+        tiles.every((tile) => tile.offsetTop === tiles[0].offsetTop)
+      );
+    }),
   ).toBe(true);
+  await day.locator(".attendance-row").first().click();
+  await expect(page.getByRole("dialog")).toContainText("Teacher");
+  await expect(page.getByRole("dialog")).toContainText("Room");
+  await expect(page.getByRole("dialog")).toContainText("101");
+  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+  const backgrounds = [];
+  for (const colorScheme of ["dark", "light"] as const) {
+    await page.emulateMedia({ colorScheme });
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-mode",
+      colorScheme,
+    );
+    await page.getByRole("button", { name: "Filter days" }).click();
+    backgrounds.push(
+      await filter
+        .locator(".attendance-option[aria-pressed=true]")
+        .evaluate((option) => getComputedStyle(option).backgroundColor),
+    );
+    await filter.getByRole("button", { name: "Close", exact: true }).click();
+  }
+  expect(backgrounds[0]).not.toBe(backgrounds[1]);
   await page.getByRole("button", { name: "Messages", exact: true }).click();
   await page.locator(".mail-card").first().click();
   await expect(page.locator(".reader")).toBeVisible();
@@ -212,7 +233,7 @@ test("Android uses Material You and the iPhone preview keeps Liquid Glass", asyn
   await page.screenshot({ path: "artifacts/iphone-glass-grades.png" });
 });
 
-test("custom choices, dark theme, behavior order and blue sixes", async ({
+test("custom choices, dark theme, averages before behaviour and blue sixes", async ({
   page,
 }) => {
   await demo(page);
@@ -226,7 +247,7 @@ test("custom choices, dark theme, behavior order and blue sixes", async ({
           !!(
             el.compareDocumentPosition(
               document.querySelector(".summary-card")!,
-            ) & Node.DOCUMENT_POSITION_FOLLOWING
+            ) & Node.DOCUMENT_POSITION_PRECEDING
           ),
       ),
   ).toBe(true);

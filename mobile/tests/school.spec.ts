@@ -246,8 +246,8 @@ test("notification permission is explicit and disabling checks stops polling", a
     .toBe("granted");
   await page
     .getByRole("switch", {
-      name: "Automatic checks and notifications",
-      exact: false,
+      name: "Notifications",
+      exact: true,
     })
     .uncheck();
   const checks = await page.evaluate(() => (window as any).__school.checks);
@@ -257,8 +257,8 @@ test("notification permission is explicit and disabling checks stops polling", a
   );
   await page
     .getByRole("switch", {
-      name: "Automatic checks and notifications",
-      exact: false,
+      name: "Notifications",
+      exact: true,
     })
     .check();
   await expect

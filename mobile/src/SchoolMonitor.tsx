@@ -174,8 +174,7 @@ export function SchoolSettings({
         <>
           <label className="setting-row update-setting">
             <span>
-              {t("schoolAutomatic")}
-              <small>{t("schoolAutomaticHint")}</small>
+              {t("notifications")}
             </span>
             <input
               type="checkbox"
@@ -190,18 +189,9 @@ export function SchoolSettings({
               }
             />
           </label>
-          <p className="muted">{t("schoolCategories")}</p>
-          <p className="muted">
-            {t(
-              account?.remembered
-                ? "schoolBackgroundHint"
-                : "schoolRememberHint",
-            )}
-          </p>
           {school.monitoring?.enabled &&
             school.monitoring.permission !== "granted" && (
               <>
-                <p>{t("schoolPermissionHint")}</p>
                 <button
                   className="wide secondary"
                   disabled={school.settingsBusy}

@@ -88,7 +88,7 @@ test("weekly grades are a separate view, combine with semester, and retain full 
   await expect(page.locator(".grade-row .grade.is-new")).toHaveCount(1);
   await expect(page.locator(".summary-card h2")).toHaveText(averages!);
   await expect(page.locator(".summary-footer")).toContainText("6 oceny");
-  await expect(page.locator(".grade-filters")).toContainText(
+  await expect(page.locator(".grade-filters")).not.toContainText(
     "według daty oceny",
   );
   await sinceLogin.click();

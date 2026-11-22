@@ -57,7 +57,6 @@ export function UpdateSettings({
           <label className="setting-row update-setting">
             <span>
               {t("autoCheckUpdates")}
-              <small>{t("autoCheckHint")}</small>
             </span>
             <input
               type="checkbox"
@@ -71,7 +70,6 @@ export function UpdateSettings({
           <label className="setting-row update-setting">
             <span>
               {t("autoUpdate")}
-              <small>{t("autoUpdateHint")}</small>
             </span>
             <input
               type="checkbox"
@@ -82,7 +80,6 @@ export function UpdateSettings({
               }
             />
           </label>
-          <p className="muted">{t("updateNetworkHint")}</p>
           <button
             className="wide secondary"
             disabled={busy}

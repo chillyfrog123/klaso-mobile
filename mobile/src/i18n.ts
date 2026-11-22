@@ -5,6 +5,7 @@ export const en = {
   copyFailed: "Could not copy the text. Try again.",
   shareFailed: "Could not share the text. Try again.",
   schoolNotifications: "School notifications",
+  notifications: "Notifications",
   schoolAutomatic: "Automatic checks and notifications",
   schoolAutomaticHint:
     "Refresh on opening and returning to the app, and every 5 minutes while it is open.",
@@ -211,6 +212,7 @@ export const pl: Record<Label, string> = {
   copyFailed: "Nie udało się skopiować tekstu. Spróbuj ponownie.",
   shareFailed: "Nie udało się udostępnić tekstu. Spróbuj ponownie.",
   schoolNotifications: "Powiadomienia szkolne",
+  notifications: "Powiadomienia",
   schoolAutomatic: "Automatyczne sprawdzanie i powiadomienia",
   schoolAutomaticHint:
     "Odświeżanie przy otwarciu i powrocie do aplikacji oraz co 5 minut, gdy jest otwarta.",

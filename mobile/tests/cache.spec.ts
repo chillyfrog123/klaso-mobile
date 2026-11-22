@@ -61,13 +61,17 @@ test("failed refresh retains grades and original successful timestamp", async ({
   page,
 }) => {
   await mockNative(page, "fail");
-  const previous = await page.locator(".freshness").textContent();
+  const previous = await page
+    .getByRole("button", { name: "Refresh", exact: true })
+    .getAttribute("title");
   await page.getByRole("button", { name: "Refresh", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText(
     "Your last successful data is unchanged",
   );
   await expect(page.getByText("Overall averages")).toBeVisible();
-  await expect(page.locator(".freshness")).toHaveText(previous!);
+  await expect(
+    page.getByRole("button", { name: "Refresh", exact: true }),
+  ).toHaveAttribute("title", previous!);
 });
 test("a previous account response cannot enter the newly signed-in account", async ({
   page,
@@ -125,4 +129,23 @@ test("saved account switch replaces cached data without retaining previous owner
   await expect(
     page.getByRole("heading", { name: "fictional-b", exact: true }),
   ).toBeVisible();
+});
+
+test("refresh button updates its age bands and switches from time to date", async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date(timestamp) });
+  await mockNative(page, "fail");
+  const refresh = page.getByRole("button", { name: "Refresh", exact: true });
+  await expect(refresh).toHaveAttribute("data-freshness", "blue");
+  await expect(refresh.locator("small")).toHaveText(/^[0-9]{2}:[0-9]{2}$/);
+  await page.clock.fastForward("01:00");
+  await expect(refresh).toHaveAttribute("data-freshness", "green");
+  await page.clock.fastForward("09:00");
+  await expect(refresh).toHaveAttribute("data-freshness", "yellow");
+  await page.clock.fastForward(86_400_000);
+  await expect(refresh).toHaveAttribute("data-freshness", "red");
+  await expect(refresh.locator("small")).toHaveText(/09\/11\/2026/);
+  await page.clock.fastForward(6 * 86_400_000);
+  await expect(refresh).toHaveAttribute("data-freshness", "stale");
 });
